@@ -8,7 +8,7 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15+-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
 ![Playwright](https://img.shields.io/badge/Playwright-Automation-2EAD33?style=for-the-badge&logo=playwright&logoColor=white)
 ![Gemini AI](https://img.shields.io/badge/Gemini_AI-3.1_Flash-4285F4?style=for-the-badge&logo=google-gemini&logoColor=white)
-![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)
+
 
 TestMaster AI is a production-grade automation platform that leverages Large Language Models to bridge the gap between business requirements and executable test code. It automates the discovery of test cases, the synthesis of Playwright scripts, and the deep analysis of execution results, enabling QA teams to provision robust automation pipelines in seconds rather than days.
 
