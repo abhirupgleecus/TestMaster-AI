@@ -57,12 +57,22 @@ class PlaywrightService:
             / "reports"
         )
 
+        self.discovery_path = (
+            self.workspace_path
+            / "discovery"
+        )
+
         self.generated_tests_path.mkdir(
             parents=True,
             exist_ok=True,
         )
 
         self.reports_path.mkdir(
+            parents=True,
+            exist_ok=True,
+        )
+
+        self.discovery_path.mkdir(
             parents=True,
             exist_ok=True,
         )
@@ -327,4 +337,52 @@ class PlaywrightService:
             duration_ms=duration_ms,
             json_report_path=str(json_report_path),
             html_report_path=str(html_report_path),
-        )
+        )
+
+    async def capture_screenshot(
+        self,
+        url: str,
+        filename: str,
+    ) -> str | None:
+        import subprocess
+        
+        output_path = self.discovery_path / filename
+        
+        # We use playwright CLI to take a screenshot
+        # --wait-for-timeout 3000 to allow for initial animations/SSO redirects
+        cmd = [
+            self.npx_command, 
+            "playwright", 
+            "screenshot", 
+            "--viewport-size=1280,720",
+            "--timeout=30000",
+            url, 
+            str(output_path)
+        ]
+        
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.info(f"Capturing discovery screenshot for {url} to {output_path}")
+        
+        def run_cmd():
+            return subprocess.run(
+                cmd,
+                cwd=str(self.workspace_path),
+                capture_output=True,
+                text=True,
+                encoding="utf-8"
+            )
+            
+        try:
+            # Run discovery in a thread to avoid blocking the event loop
+            result = await asyncio.to_thread(run_cmd)
+            
+            if result.returncode == 0 and output_path.exists():
+                logger.info(f"Successfully captured screenshot: {output_path}")
+                return str(output_path)
+            else:
+                logger.error(f"Failed to capture screenshot. Return code: {result.returncode}. Stderr: {result.stderr}")
+                return None
+        except Exception as e:
+            logger.error(f"Error during screenshot capture: {str(e)}")
+            return None

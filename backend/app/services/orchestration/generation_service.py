@@ -14,6 +14,9 @@ from app.schemas.test_case import (
 from app.services.llm_service import (
     LLMService,
 )
+from app.services.playwright_service import (
+    PlaywrightService,
+)
 
 
 class GenerationService:
@@ -24,6 +27,7 @@ class GenerationService:
         self.session = session
 
         self.llm_service = LLMService()
+        self.playwright_service = PlaywrightService()
 
         self.generation_session_repository = (
             GenerationSessionRepository(
@@ -63,11 +67,21 @@ class GenerationService:
 
         project = generation_session.project
 
+        # Phase 1: Visual Discovery
+        # Capture a screenshot of the landing page to provide visual context to the LLM
+        screenshot_filename = f"discovery_{session_id}.png"
+        screenshot_path = await self.playwright_service.capture_screenshot(
+            url=project.target_url,
+            filename=screenshot_filename
+        )
+
+        # Phase 2: Synthesis with Visual Context
         llm_response = (
             await self.llm_service
             .generate_test_cases(
                 project=project,
                 context_input=context_input,
+                screenshot_path=screenshot_path
             )
         )
 

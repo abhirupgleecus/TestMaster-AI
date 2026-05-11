@@ -26,6 +26,8 @@ suitable for Playwright automation.
 
 Requirements:
 - Focus on realistic UI workflows
+- ANALYZE THE PROVIDED SCREENSHOT: Identify any required prerequisite steps, such as clicking 'Login with SSO', handling cookie banners, or dismissing splash screens that are visible in the image.
+- If the screenshot shows a login gateway (like an SSO button) that must be clicked to reach the main application, include that click as the first step in your test cases.
 - Avoid redundant test cases
 - Keep descriptions concise
 - Include meaningful expected outcomes

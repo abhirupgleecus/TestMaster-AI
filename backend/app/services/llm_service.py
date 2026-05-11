@@ -1,4 +1,6 @@
 import json
+import base64
+from pathlib import Path
 
 from google import genai
 from google.genai.types import GenerateContentConfig
@@ -56,10 +58,26 @@ class LLMService:
     async def _generate_json_response(
         self,
         prompt: str,
+        image_path: str | None = None,
     ) -> dict:
+        contents = [prompt]
+        
+        if image_path:
+            image_file = Path(image_path)
+            if image_file.exists():
+                with open(image_file, "rb") as f:
+                    image_data = base64.b64encode(f.read()).decode("utf-8")
+                
+                contents.append({
+                    "inline_data": {
+                        "mime_type": "image/png",
+                        "data": image_data
+                    }
+                })
+
         response = self.client.models.generate_content(
             model=self.model_name,
-            contents=prompt,
+            contents=contents,
             config=GenerateContentConfig(
                 temperature=0.2,
                 response_mime_type=(
@@ -105,6 +123,7 @@ class LLMService:
         self,
         project: Project,
         context_input: str,
+        screenshot_path: str | None = None,
     ) -> TestCaseGenerationResponse:
         prompt = (
             build_test_case_generation_prompt(
@@ -116,7 +135,8 @@ class LLMService:
 
         response_json = (
             await self._generate_json_response(
-                prompt
+                prompt,
+                image_path=screenshot_path
             )
         )
 
