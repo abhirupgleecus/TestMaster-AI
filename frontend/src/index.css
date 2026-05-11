@@ -179,3 +179,5 @@ h1, h2, h3, h4 {
 .mb-4 { margin-bottom: 1rem; }
 .p-4 { padding: 1rem; }
 .w-full { width: 100%; }
+.break-words { overflow-wrap: break-word; }
+.break-all { word-break: break-all; }

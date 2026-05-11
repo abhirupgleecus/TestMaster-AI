@@ -103,7 +103,7 @@ export default function Dashboard() {
               <div style={{ padding: '12px', background: 'rgba(139, 92, 246, 0.1)', borderRadius: '12px', color: 'var(--accent-primary)' }}>
                 <FolderPlus size={24} />
               </div>
-              <h3 style={{ fontSize: '1.5rem' }}>Create New Testscript</h3>
+              <h3 style={{ fontSize: '1.5rem' }}>Create New Test-cases</h3>
             </div>
             
             <form onSubmit={handleCreate} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
@@ -176,11 +176,11 @@ export default function Dashboard() {
               >
                 <div>
                   <h3 style={{ marginBottom: '0.5rem', fontSize: '1.25rem' }}>{p.name}</h3>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1rem' }}>
-                    <Globe size={14} />
-                    <span>{p.target_url}</span>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1rem' }}>
+                    <Globe size={14} style={{ marginTop: '2px', flexShrink: 0 }} />
+                    <span style={{ wordBreak: 'break-all' }}>{p.target_url}</span>
                   </div>
-                  <p className="text-secondary" style={{ fontSize: '0.95rem', lineHeight: 1.5 }}>
+                  <p className="text-secondary" style={{ fontSize: '0.95rem', lineHeight: 1.5, overflowWrap: 'break-word' }}>
                     {p.description || 'No description provided.'}
                   </p>
                 </div>

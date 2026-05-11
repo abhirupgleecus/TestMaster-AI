@@ -19,7 +19,7 @@ export default function Pipeline() {
   const [report, setReport] = useState<any>(null);
   
   const [error, setError] = useState<string | null>(null);
-  const [expandedTcs, setExpandedTcs] = useState<Set<string>>(new Set());
+  const [viewingStepsTc, setViewingStepsTc] = useState<any | null>(null);
 
   // 1. Fetch Initial Test Cases
   useEffect(() => {
@@ -76,12 +76,7 @@ export default function Pipeline() {
     }
   };
 
-  const toggleExpand = (id: string) => {
-    const newSet = new Set(expandedTcs);
-    if (newSet.has(id)) newSet.delete(id);
-    else newSet.add(id);
-    setExpandedTcs(newSet);
-  };
+  // Removed toggleExpand as we now use a modal
 
   // Run the full pipeline sequentially
   const handleProceed = async () => {
@@ -222,34 +217,23 @@ export default function Pipeline() {
                     {tc.is_selected ? <CheckCircle2 color="var(--accent-primary)" size={24} /> : <Circle color="var(--text-secondary)" size={24} />}
                   </div>
                   <div style={{ flex: 1 }}>
-                    <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: tc.is_selected ? 'var(--text-primary)' : 'var(--text-secondary)' }}>
+                    <h3 className="break-words" style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: tc.is_selected ? 'var(--text-primary)' : 'var(--text-secondary)' }}>
                       {idx + 1}. {tc.title}
                     </h3>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', marginBottom: '1rem', lineHeight: 1.5 }}>{tc.description}</p>
+                    <p className="break-words" style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', marginBottom: '1rem', lineHeight: 1.5 }}>{tc.description}</p>
                     
                     <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
                       <button 
-                        onClick={() => toggleExpand(tc.id)}
+                        onClick={() => setViewingStepsTc(tc)}
                         style={{ background: 'transparent', color: 'var(--accent-secondary)', fontSize: '0.85rem', fontWeight: 600, padding: 0 }}
                       >
-                        {expandedTcs.has(tc.id) ? 'Hide Steps' : 'View Steps'}
+                        View Steps
                       </button>
                     </div>
 
-                    {expandedTcs.has(tc.id) && tc.steps && (
-                      <div style={{ marginBottom: '1rem', paddingLeft: '1rem', borderLeft: '2px solid var(--accent-primary)' }}>
-                        {tc.steps.map((step: any) => (
-                          <div key={step.step_number} style={{ marginBottom: '0.5rem', fontSize: '0.9rem' }}>
-                            <span style={{ color: 'var(--accent-primary)', fontWeight: 600 }}>{step.step_number}.</span> {step.action}
-                            <div style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', marginLeft: '1.2rem' }}>
-                              Expected: {step.expected_result}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                    {/* Inline steps removed in favor of modal */}
                     
-                    <div style={{ background: 'rgba(0,0,0,0.3)', padding: '1rem', borderRadius: '8px', fontSize: '0.9rem' }}>
+                    <div className="break-words" style={{ background: 'rgba(0,0,0,0.3)', padding: '1rem', borderRadius: '8px', fontSize: '0.9rem' }}>
                       <strong style={{ color: 'var(--accent-secondary)' }}>Final Expected Outcome:</strong> {tc.expected_output}
                     </div>
                   </div>
@@ -309,14 +293,14 @@ export default function Pipeline() {
               </div>
             </div>
             
-            <p style={{ fontSize: '1.1rem', lineHeight: 1.7, marginBottom: '2rem' }}>
+            <p className="break-words" style={{ fontSize: '1.1rem', lineHeight: 1.7, marginBottom: '2rem' }}>
               {report.executive_summary}
             </p>
 
             {report.detailed_analysis && (
               <div style={{ background: 'rgba(0,0,0,0.3)', padding: '1.5rem', borderRadius: '12px' }}>
                 <h4 style={{ marginBottom: '1rem', color: 'var(--accent-secondary)' }}>Technical Breakdown</h4>
-                <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit', color: 'var(--text-secondary)', lineHeight: 1.6, fontSize: '0.95rem' }}>
+                <pre className="break-all" style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit', color: 'var(--text-secondary)', lineHeight: 1.6, fontSize: '0.95rem' }}>
                   {JSON.stringify(report.detailed_analysis, null, 2)}
                 </pre>
               </div>
@@ -329,6 +313,80 @@ export default function Pipeline() {
         </div>
       )}
 
+      {/* Steps Modal */}
+      {viewingStepsTc && (
+        <div style={{ 
+          position: 'fixed', 
+          inset: 0, 
+          background: 'rgba(0,0,0,0.8)', 
+          backdropFilter: 'blur(8px)',
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center', 
+          zIndex: 1000,
+          padding: '2rem'
+        }} onClick={() => setViewingStepsTc(null)}>
+          <div 
+            className="glass-panel" 
+            style={{ 
+              maxWidth: '600px', 
+              width: '100%', 
+              maxHeight: '80vh', 
+              overflowY: 'auto', 
+              overflowX: 'hidden', 
+              padding: '2.5rem',
+              position: 'relative'
+            }} 
+            onClick={e => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem' }}>
+              <div>
+                <h2 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }} className="title-glow">{viewingStepsTc.title}</h2>
+                <p className="text-secondary" style={{ fontSize: '0.9rem' }}>Detailed execution steps generated by AI</p>
+              </div>
+              <button 
+                onClick={() => setViewingStepsTc(null)}
+                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-color)', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)' }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              {viewingStepsTc.steps?.map((step: any) => (
+                <div key={step.step_number} style={{ display: 'flex', gap: '1rem' }}>
+                  <div style={{ 
+                    width: '28px', 
+                    height: '28px', 
+                    borderRadius: '50%', 
+                    background: 'rgba(139, 92, 246, 0.1)', 
+                    color: 'var(--accent-primary)', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center',
+                    fontSize: '0.8rem',
+                    fontWeight: 700,
+                    flexShrink: 0
+                  }}>
+                    {step.step_number}
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div className="break-all" style={{ fontSize: '1rem', marginBottom: '0.4rem', color: 'var(--text-primary)' }}>{step.action}</div>
+                    <div className="break-words" style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', padding: '0.75rem', background: 'rgba(0,0,0,0.2)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                      <span style={{ color: 'var(--success)', fontWeight: 600, marginRight: '8px' }}>EXPECTED:</span>
+                      {step.expected_result}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ marginTop: '2.5rem', paddingTop: '2rem', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'flex-end' }}>
+              <button className="btn-secondary" onClick={() => setViewingStepsTc(null)}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

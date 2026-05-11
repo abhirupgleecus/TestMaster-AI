@@ -53,11 +53,11 @@ export default function ProjectWorkspace() {
       <div className="glass-panel" style={{ padding: '3rem', marginBottom: '3rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
           <h1 style={{ fontSize: '3rem', marginBottom: '1rem' }} className="title-glow">{project.name}</h1>
-          <a href={project.target_url} target="_blank" rel="noreferrer" style={{ color: 'var(--text-secondary)', display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '8px 16px', background: 'rgba(255,255,255,0.05)', borderRadius: '20px' }}>
-            <Activity size={16} color="var(--success)" />
+          <a href={project.target_url} target="_blank" rel="noreferrer" className="break-all" style={{ color: 'var(--text-secondary)', display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '8px 16px', background: 'rgba(255,255,255,0.05)', borderRadius: '20px' }}>
+            <Activity size={16} color="var(--success)" style={{ flexShrink: 0 }} />
             {project.target_url}
           </a>
-          <p style={{ marginTop: '1.5rem', color: 'var(--text-secondary)', fontSize: '1.1rem', maxWidth: '600px', lineHeight: 1.6 }}>
+          <p className="break-words" style={{ marginTop: '1.5rem', color: 'var(--text-secondary)', fontSize: '1.1rem', maxWidth: '600px', lineHeight: 1.6 }}>
             {project.description}
           </p>
         </div>
