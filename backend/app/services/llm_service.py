@@ -1,0 +1,182 @@
+import json
+
+from google import genai
+from google.genai.types import GenerateContentConfig
+
+from app.core.config import settings
+from app.prompts.playwright_prompts import (
+    build_playwright_generation_prompt,
+)
+from app.prompts.report_prompts import (
+    build_test_report_prompt,
+)
+from app.prompts.test_case_prompts import (
+    build_test_case_generation_prompt,
+    validate_test_case_count,
+)
+from app.schemas.llm import (
+    TestCaseGenerationResponse,
+    TestReportGenerationResponse,
+)
+from app.models.test_execution import (
+    TestExecution,
+)
+from app.models.test_case import TestCase
+from app.models.project import Project
+
+
+class LLMService:
+    def __init__(self) -> None:
+        self.client = genai.Client(
+            api_key=settings.gemini_api_key,
+        )
+
+        self.model_name = (
+            "gemini-3.1-flash-lite"
+        )
+
+    def _clean_json_response(
+        self,
+        response_text: str,
+    ) -> str:
+        cleaned = response_text.strip()
+
+        if cleaned.startswith("```json"):
+            cleaned = cleaned.removeprefix(
+                "```json"
+            )
+
+        if cleaned.endswith("```"):
+            cleaned = cleaned.removesuffix(
+                "```"
+            )
+
+        return cleaned.strip()
+
+    async def _generate_json_response(
+        self,
+        prompt: str,
+    ) -> dict:
+        response = self.client.models.generate_content(
+            model=self.model_name,
+            contents=prompt,
+            config=GenerateContentConfig(
+                temperature=0.2,
+                response_mime_type=(
+                    "application/json"
+                ),
+            ),
+        )
+
+        if not response.text:
+            raise ValueError(
+                "Gemini returned empty response."
+        )
+
+        cleaned_response = (
+            self._clean_json_response(
+                response.text
+            )
+        )
+
+        return json.loads(cleaned_response)
+
+    async def _generate_text_response(
+        self,
+        prompt: str,
+    ) -> str:
+        response = self.client.models.generate_content(
+            model=self.model_name,
+            contents=prompt,
+            config=GenerateContentConfig(
+                temperature=0.2,
+                response_mime_type="text/plain",
+            ),
+        )
+
+        if not response.text:
+            raise ValueError(
+                "Gemini returned empty response."
+            )
+
+        return response.text.strip()
+
+    async def generate_test_cases(
+        self,
+        project: Project,
+        context_input: str,
+    ) -> TestCaseGenerationResponse:
+        prompt = (
+            build_test_case_generation_prompt(
+                project_name=project.name,
+                target_url=project.target_url,
+                context_input=context_input,
+            )
+        )
+
+        response_json = (
+            await self._generate_json_response(
+                prompt
+            )
+        )
+
+        validated_response = (
+            TestCaseGenerationResponse(
+                **response_json
+            )
+        )
+
+        if not validate_test_case_count(
+            validated_response.test_cases
+        ):
+            raise ValueError(
+                "Generated test case count "
+                "is outside allowed range."
+            )
+
+        return validated_response
+
+    async def generate_playwright_script(
+        self,
+        target_url: str,
+        test_cases: list[TestCase],
+    ) -> str:
+        prompt = (
+            build_playwright_generation_prompt(
+                target_url=target_url,
+                test_cases=test_cases,
+            )
+        )
+
+        content = await self._generate_text_response(
+            prompt
+        )
+
+        if "@playwright/test" not in content or "test(" not in content:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.warning(
+                "Generated Playwright script is missing '@playwright/test' "
+                "or a 'test(' block. This will likely cause discovery failure. "
+                f"First 500 chars: {content[:500]}"
+            )
+
+        return content
+
+    async def generate_test_report(
+        self,
+        execution: TestExecution,
+    ) -> TestReportGenerationResponse:
+        prompt = build_test_report_prompt(
+            execution,
+        )
+
+        response_json = (
+            await self._generate_json_response(
+                prompt
+            )
+        )
+
+        return TestReportGenerationResponse(
+            **response_json
+        )
