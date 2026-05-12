@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FolderPlus, Globe, ArrowRight, Brain } from 'lucide-react';
 
-const API_BASE = 'http://127.0.0.1:8000';
+// const API_BASE = 'http://127.0.0.1:8000';
+const API_BASE = 'http://136.110.2.248:5173';
 
 export default function Dashboard() {
   const [projects, setProjects] = useState<any[]>([]);

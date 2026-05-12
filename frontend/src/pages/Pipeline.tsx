@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { CheckCircle2, Circle, Loader2, PlayCircle, BarChart3, ChevronLeft, ShieldCheck, Terminal, AlertTriangle } from 'lucide-react';
 
-const API_BASE = 'http://127.0.0.1:8000';
+// const API_BASE = 'http://127.0.0.1:8000';
+const API_BASE = 'http://136.110.2.248:5173';
 
 type Step = 'HITL' | 'GENERATING_SCRIPT' | 'EXECUTING' | 'REPORT';
 type ReportArtifact = {

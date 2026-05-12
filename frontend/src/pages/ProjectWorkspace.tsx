@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Play, Activity, Settings, ChevronLeft } from 'lucide-react';
 
-const API_BASE = 'http://127.0.0.1:8000';
+// const API_BASE = 'http://127.0.0.1:8000';
+const API_BASE = 'http://136.110.2.248:5173';
 
 export default function ProjectWorkspace() {
   const { projectId } = useParams();
