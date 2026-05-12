@@ -67,13 +67,17 @@ export default function Pipeline() {
   const navigate = useNavigate();
   
   const [currentStep, setCurrentStep] = useState<Step>('HITL');
+  const [hitlGate, setHitlGate] = useState<'APPROVAL' | 'SELECTION'>('APPROVAL');
   
   const [testCases, setTestCases] = useState<any[]>([]);
   const [isLoadingTests, setIsLoadingTests] = useState(true);
+  const [isApproving, setIsApproving] = useState(false);
+  
+  // Local tracking for approval checkboxes (Gate 1)
+  const [localApprovals, setLocalApprovals] = useState<Set<string>>(new Set());
   
   const [executionStats, setExecutionStats] = useState<any>(null);
   const [report, setReport] = useState<ReportResponse | null>(null);
-  const reportStatus = report?.overall_status?.toLowerCase();
   
   const [error, setError] = useState<string | null>(null);
   const [viewingStepsTc, setViewingStepsTc] = useState<any | null>(null);
@@ -85,6 +89,14 @@ export default function Pipeline() {
       .then(data => {
         setTestCases(data);
         setIsLoadingTests(false);
+        // If any test cases are already approved, jump to Gate 2
+        const hasApproved = data.some((tc: any) => tc.is_approved);
+        if (hasApproved) {
+          setHitlGate('SELECTION');
+        } else {
+          // Pre-select all for approval by default
+          setLocalApprovals(new Set(data.map((tc: any) => tc.id)));
+        }
       })
       .catch(err => {
         console.error(err);
@@ -93,7 +105,49 @@ export default function Pipeline() {
       });
   }, [sessionId]);
 
-  // Toggle Test Case Selection
+  // --- Gate 1: Local approval toggle (no backend call, just local state) ---
+  const toggleApproval = (testCaseId: string) => {
+    setLocalApprovals(prev => {
+      const next = new Set(prev);
+      if (next.has(testCaseId)) next.delete(testCaseId);
+      else next.add(testCaseId);
+      return next;
+    });
+  };
+
+  const toggleApproveAll = () => {
+    if (localApprovals.size === testCases.length) {
+      setLocalApprovals(new Set());
+    } else {
+      setLocalApprovals(new Set(testCases.map(tc => tc.id)));
+    }
+  };
+
+  // Submit bulk approval to backend, then transition to Gate 2
+  const handleApprove = async () => {
+    setIsApproving(true);
+    try {
+      const res = await fetch(`${API_BASE}/sessions/${sessionId}/test-cases/approve`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ test_case_ids: Array.from(localApprovals) })
+      });
+      if (res.ok) {
+        const updatedCases = await res.json();
+        setTestCases(updatedCases);
+        setHitlGate('SELECTION');
+      } else {
+        setError('Failed to approve test cases.');
+      }
+    } catch (err) {
+      console.error(err);
+      setError('Failed to approve test cases.');
+    } finally {
+      setIsApproving(false);
+    }
+  };
+
+  // --- Gate 2: Selection toggle (backend PATCH, same as before) ---
   const toggleTestCase = async (testCaseId: string, currentStatus: boolean) => {
     try {
       const res = await fetch(`${API_BASE}/sessions/${sessionId}/test-cases/${testCaseId}`, {
@@ -110,18 +164,15 @@ export default function Pipeline() {
   };
 
   const toggleSelectAll = async () => {
-    const allSelected = testCases.every(tc => tc.is_selected);
+    const approvedCases = testCases.filter(tc => tc.is_approved);
+    const allSelected = approvedCases.every(tc => tc.is_selected);
     const newStatus = !allSelected;
     
-    // In a real app we'd have a bulk API, but here we can iterate or just update UI and then bulk patch
-    // To keep it simple and reactive:
     try {
-      // Mocking bulk behavior for UI responsiveness
-      const updatedTcs = testCases.map(tc => ({ ...tc, is_selected: newStatus }));
+      const updatedTcs = testCases.map(tc => tc.is_approved ? { ...tc, is_selected: newStatus } : tc);
       setTestCases(updatedTcs);
       
-      // Parallel patch calls (not ideal for perf but works for small sets)
-      await Promise.all(testCases.map(tc => 
+      await Promise.all(approvedCases.map(tc => 
         fetch(`${API_BASE}/sessions/${sessionId}/test-cases/${tc.id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
@@ -132,8 +183,6 @@ export default function Pipeline() {
       console.error(err);
     }
   };
-
-  // Removed toggleExpand as we now use a modal
 
   // Run the full pipeline sequentially
   const handleProceed = async () => {
@@ -253,80 +302,161 @@ export default function Pipeline() {
       {/* Main Content Area */}
       {currentStep === 'HITL' && (
         <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <h2 className="title-glow">Review Generated Test Plan</h2>
-              {!isLoadingTests && testCases.length > 0 && (
-                <button 
-                  onClick={toggleSelectAll}
-                  style={{ 
-                    background: 'rgba(255,255,255,0.05)', 
-                    border: '1px solid var(--border-color)', 
-                    padding: '4px 12px', 
-                    borderRadius: '20px',
-                    fontSize: '0.8rem',
-                    color: 'var(--text-secondary)',
-                    cursor: 'pointer'
-                  }}
-                >
-                  {testCases.every(tc => tc.is_selected) ? 'Deselect All' : 'Select All'}
-                </button>
-              )}
-            </div>
-            <button 
-              className="btn-primary"
-              onClick={handleProceed}
-              disabled={testCases.filter(t => t.is_selected).length === 0}
-            >
-              Approve & Synthesize Code
-            </button>
-          </div>
-
           {isLoadingTests ? (
             <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-secondary)' }}>
               <Loader2 className="animate-spin" size={32} style={{ margin: '0 auto 1rem' }} />
               Loading AI proposals...
             </div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {testCases.map((tc, idx) => (
-                <div 
-                  key={tc.id} 
-                  className="glass-panel" 
-                  style={{ 
-                    padding: '1.5rem', 
-                    display: 'flex', 
-                    gap: '1.5rem',
-                    borderColor: tc.is_selected ? 'var(--accent-primary)' : 'var(--border-color)',
-                    background: tc.is_selected ? 'rgba(139, 92, 246, 0.05)' : 'var(--bg-surface)'
-                  }}
-                >
-                  <div style={{ cursor: 'pointer', marginTop: '4px' }} onClick={() => toggleTestCase(tc.id, tc.is_selected)}>
-                    {tc.is_selected ? <CheckCircle2 color="var(--accent-primary)" size={24} /> : <Circle color="var(--text-secondary)" size={24} />}
+          ) : hitlGate === 'APPROVAL' ? (
+            /* ===== GATE 1: APPROVAL ===== */
+            <div>
+              <div style={{ marginBottom: '2.5rem' }}>
+                <h2 className="title-glow" style={{ marginBottom: '0.5rem' }}>Review & Approve Generated Test Plan</h2>
+                <p className="text-secondary" style={{ marginBottom: '1.5rem', fontSize: '0.95rem' }}>Select the test cases you approve. Only approved cases will be available for execution.</p>
+                {testCases.length > 0 && (
+                  <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                    <button 
+                      onClick={toggleApproveAll}
+                      className="btn-secondary"
+                      style={{ padding: '8px 16px', borderRadius: '8px', fontSize: '0.9rem' }}
+                    >
+                      {localApprovals.size === testCases.length ? 'Deselect All' : 'Select All'}
+                    </button>
+                    <button 
+                      className="btn-primary"
+                      onClick={handleApprove}
+                      disabled={localApprovals.size === 0 || isApproving}
+                    >
+                      {isApproving ? (
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <Loader2 className="animate-spin" size={16} /> Approving...
+                        </span>
+                      ) : `Approve ${localApprovals.size} Test Case${localApprovals.size !== 1 ? 's' : ''}`}
+                    </button>
                   </div>
-                  <div style={{ flex: 1 }}>
-                    <h3 className="break-words" style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: tc.is_selected ? 'var(--text-primary)' : 'var(--text-secondary)' }}>
-                      {idx + 1}. {tc.title}
-                    </h3>
-                    <p className="break-words" style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', marginBottom: '1rem', lineHeight: 1.5 }}>{tc.description}</p>
-                    
-                    <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
-                      <button 
-                        onClick={() => setViewingStepsTc(tc)}
-                        style={{ background: 'transparent', color: 'var(--accent-secondary)', fontSize: '0.85rem', fontWeight: 600, padding: 0 }}
-                      >
-                        View Steps
-                      </button>
-                    </div>
+                )}
+              </div>
 
-                    {/* Inline steps removed in favor of modal */}
-                    
-                    <div className="break-words" style={{ background: 'rgba(0,0,0,0.3)', padding: '1rem', borderRadius: '8px', fontSize: '0.9rem' }}>
-                      <strong style={{ color: 'var(--accent-secondary)' }}>Final Expected Outcome:</strong> {tc.expected_output}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {testCases.map((tc, idx) => {
+                  const isChecked = localApprovals.has(tc.id);
+                  return (
+                    <div 
+                      key={tc.id} 
+                      className="glass-panel" 
+                      style={{ 
+                        padding: '1.5rem', 
+                        display: 'flex', 
+                        gap: '1.5rem',
+                        borderColor: isChecked ? 'var(--accent-primary)' : 'var(--border-color)',
+                        background: isChecked ? 'rgba(139, 92, 246, 0.05)' : 'var(--bg-surface)'
+                      }}
+                    >
+                      <div style={{ cursor: 'pointer', marginTop: '4px' }} onClick={() => toggleApproval(tc.id)}>
+                        {isChecked ? <CheckCircle2 color="var(--accent-primary)" size={24} /> : <Circle color="var(--text-secondary)" size={24} />}
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', marginBottom: '0.5rem' }}>
+                          <h3 className="break-words" style={{ fontSize: '1.1rem', color: isChecked ? 'var(--text-primary)' : 'var(--text-secondary)', margin: 0 }}>
+                            {idx + 1}. {tc.title}
+                          </h3>
+                          <button 
+                            onClick={() => setViewingStepsTc(tc)}
+                            className="btn-secondary"
+                            style={{ padding: '6px 12px', fontSize: '0.8rem', borderRadius: '6px', whiteSpace: 'nowrap' }}
+                          >
+                            View Steps
+                          </button>
+                        </div>
+                        <p className="break-words" style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', marginBottom: '1rem', lineHeight: 1.5 }}>{tc.description}</p>
+                        <div className="break-words" style={{ background: 'rgba(0,0,0,0.3)', padding: '1rem', borderRadius: '8px', fontSize: '0.9rem' }}>
+                          <strong style={{ color: 'var(--accent-secondary)' }}>Final Expected Outcome:</strong> {tc.expected_output}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ) : (
+            /* ===== GATE 2: SELECTION ===== */
+            <div>
+              <div style={{ marginBottom: '2.5rem' }}>
+                <h2 className="title-glow" style={{ marginBottom: '0.5rem' }}>Select Approved Tests for Execution</h2>
+                <p className="text-secondary" style={{ marginBottom: '1.5rem', fontSize: '0.95rem' }}>Choose which approved test cases to include in this execution run.</p>
+                {testCases.filter(tc => tc.is_approved).length > 0 && (
+                  <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                    <button 
+                      onClick={toggleSelectAll}
+                      className="btn-secondary"
+                      style={{ padding: '8px 16px', borderRadius: '8px', fontSize: '0.9rem' }}
+                    >
+                      {testCases.filter(tc => tc.is_approved).every(tc => tc.is_selected) ? 'Deselect All' : 'Select All'}
+                    </button>
+                    <button 
+                      className="btn-primary"
+                      onClick={handleProceed}
+                      disabled={testCases.filter(t => t.is_approved && t.is_selected).length === 0}
+                    >
+                      Synthesize & Run Code
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {testCases.filter(tc => tc.is_approved).map((tc, idx) => (
+                  <div 
+                    key={tc.id} 
+                    className="glass-panel" 
+                    style={{ 
+                      padding: '1.5rem', 
+                      display: 'flex', 
+                      gap: '1.5rem',
+                      borderColor: tc.is_selected ? 'var(--accent-primary)' : 'var(--border-color)',
+                      background: tc.is_selected ? 'rgba(139, 92, 246, 0.05)' : 'var(--bg-surface)'
+                    }}
+                  >
+                    <div style={{ cursor: 'pointer', marginTop: '4px' }} onClick={() => toggleTestCase(tc.id, tc.is_selected)}>
+                      {tc.is_selected ? <CheckCircle2 color="var(--accent-primary)" size={24} /> : <Circle color="var(--text-secondary)" size={24} />}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', marginBottom: '0.5rem' }}>
+                        <h3 className="break-words" style={{ fontSize: '1.1rem', color: tc.is_selected ? 'var(--text-primary)' : 'var(--text-secondary)', margin: 0 }}>
+                          {idx + 1}. {tc.title}
+                        </h3>
+                        <button 
+                          onClick={() => setViewingStepsTc(tc)}
+                          className="btn-secondary"
+                          style={{ padding: '6px 12px', fontSize: '0.8rem', borderRadius: '6px', whiteSpace: 'nowrap' }}
+                        >
+                          View Steps
+                        </button>
+                      </div>
+                      <p className="break-words" style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', marginBottom: '1rem', lineHeight: 1.5 }}>{tc.description}</p>
+                      <div className="break-words" style={{ background: 'rgba(0,0,0,0.3)', padding: '1rem', borderRadius: '8px', fontSize: '0.9rem' }}>
+                        <strong style={{ color: 'var(--accent-secondary)' }}>Final Expected Outcome:</strong> {tc.expected_output}
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.75rem' }}>
+                        <span style={{ 
+                          display: 'inline-flex', 
+                          alignItems: 'center', 
+                          gap: '6px',
+                          padding: '4px 12px', 
+                          borderRadius: '20px', 
+                          background: 'rgba(16, 185, 129, 0.1)', 
+                          color: 'var(--success)', 
+                          fontSize: '0.8rem', 
+                          fontWeight: 600,
+                          border: '1px solid rgba(16, 185, 129, 0.25)'
+                        }}>
+                          <CheckCircle2 size={14} /> Approved
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           )}
         </div>

@@ -157,14 +157,14 @@ class GenerationService:
         selected_test_cases = (
             await self
             .test_case_repository
-            .get_selected_test_cases(
+            .get_approved_and_selected_test_cases(
                 generation_session.id,
             )
         )
 
         if not selected_test_cases:
             raise ValueError(
-                "No selected test cases found."
+                "No approved and selected test cases found."
             )
 
         playwright_script = (

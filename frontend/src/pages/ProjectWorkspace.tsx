@@ -67,7 +67,7 @@ export default function ProjectWorkspace() {
       </div>
 
       <h2 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <Play color="var(--accent-primary)" /> Initialize New Automation Session
+        <Play color="var(--accent-primary)" /> Generate New Test-Cases
       </h2>
       <div className="glass-panel" style={{ padding: '2rem' }}>
         <p style={{ marginBottom: '1rem', color: 'var(--text-secondary)' }}>

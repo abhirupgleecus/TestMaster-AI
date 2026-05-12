@@ -58,6 +58,7 @@ class TestCaseResponse(BaseModel):
     expected_output: str
 
     is_selected: bool
+    is_approved: bool
     order_index: int
 
     created_at: datetime

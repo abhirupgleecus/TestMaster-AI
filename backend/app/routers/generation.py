@@ -69,6 +69,22 @@ async def update_test_case_selection(
         raise HTTPException(status_code=404, detail="Test case not found")
     return test_case
 
+class BulkApprovalRequest(BaseModel):
+    test_case_ids: list[uuid.UUID]
+
+@router.post("/sessions/{session_id}/test-cases/approve", response_model=List[TestCaseResponse])
+async def bulk_approve_test_cases(
+    session_id: uuid.UUID,
+    approval_data: BulkApprovalRequest,
+    test_case_repo: TestCaseRepository = Depends(get_test_case_repo),
+):
+    """Approve selected test cases. Only approved cases can be selected for execution."""
+    updated_cases = await test_case_repo.bulk_approve_test_cases(
+        session_id=session_id,
+        test_case_ids=approval_data.test_case_ids,
+    )
+    return updated_cases
+
 @router.post("/sessions/{session_id}/generate-script", response_model=TestScriptResponse)
 async def generate_script(
     session_id: uuid.UUID,

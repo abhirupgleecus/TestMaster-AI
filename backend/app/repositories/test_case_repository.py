@@ -1,6 +1,7 @@
 import uuid
+from typing import Sequence
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.test_case import TestCase
@@ -97,3 +98,51 @@ class TestCaseRepository:
         await self.session.refresh(test_case)
 
         return test_case
+
+    async def bulk_approve_test_cases(
+        self,
+        session_id: uuid.UUID,
+        test_case_ids: list[uuid.UUID],
+    ) -> list[TestCase]:
+        """Approve specific test cases and reset any previously approved ones not in the list."""
+        # First, unapprove all test cases for this session
+        await self.session.execute(
+            update(TestCase)
+            .where(TestCase.session_id == session_id)
+            .values(is_approved=False, is_selected=False)
+        )
+
+        # Then approve the selected ones
+        if test_case_ids:
+            await self.session.execute(
+                update(TestCase)
+                .where(
+                    TestCase.session_id == session_id,
+                    TestCase.id.in_(test_case_ids),
+                )
+                .values(is_approved=True)
+            )
+
+        await self.session.commit()
+
+        # Return the refreshed full list
+        return await self.get_test_cases_by_session_id(session_id)
+
+    async def get_approved_and_selected_test_cases(
+        self,
+        session_id: uuid.UUID,
+    ) -> list[TestCase]:
+        """Only return test cases that are both approved AND selected for execution."""
+        statement = (
+            select(TestCase)
+            .where(
+                TestCase.session_id == session_id,
+                TestCase.is_approved.is_(True),
+                TestCase.is_selected.is_(True),
+            )
+            .order_by(TestCase.order_index.asc())
+        )
+
+        result = await self.session.execute(statement)
+
+        return list(result.scalars().all())

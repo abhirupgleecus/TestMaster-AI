@@ -75,7 +75,14 @@ Reference Context:
 7. **Resilience**:
    - Handle optional intermediate post-login screens only if they appear, such as conflict/continuation dialogs noted in the reference context.
    - If an assertion depends on navigation in a new tab or popup, explicitly wait for that popup/page.
-8. **Evidence-Friendly Output**:
+8. **Credential Strategy**:
+   - If login is required and the user context or selected test cases explicitly provide credentials, use those explicit values.
+   - If login is required and credentials are NOT explicitly provided, read them from `process.env.LOGIN_USER` and `process.env.LOGIN_PASS`.
+   - Assume the Playwright workspace may provide those values through a local `.env` or `credentials.txt` file.
+   - Do NOT invent fallback demo credentials.
+   - Centralize credential reads once near the top of the file so multiple tests reuse the same values.
+   - If env-based credentials are required for a testcase, fail clearly with a short message when they are missing instead of silently guessing values.
+9. **Evidence-Friendly Output**:
    - Use clear test descriptions and deterministic steps so the generated Playwright artifacts are easy to interpret in reports.
 
 ### FEW-SHOT IMPLEMENTATION EXAMPLES (Adapt, do not copy blindly):
@@ -122,11 +129,16 @@ class LoginPage {{
 ```
 
 ```typescript
+const LOGIN_USER = process.env.LOGIN_USER;
+const LOGIN_PASS = process.env.LOGIN_PASS;
+
 test('Verify successful login using valid credentials', async ({{ page }}) => {{
+  expect(LOGIN_USER, 'LOGIN_USER must be set in playwright-workspace/.env or credentials.txt').toBeTruthy();
+  expect(LOGIN_PASS, 'LOGIN_PASS must be set in playwright-workspace/.env or credentials.txt').toBeTruthy();
   const loginPage = new LoginPage(page);
   await loginPage.page.goto('...');
   await loginPage.openLocalAccount();
-  await loginPage.login('qatestuser1', 'admin123');
+  await loginPage.login(LOGIN_USER!, LOGIN_PASS!);
   await expect(page).toHaveURL(/Landing|MyPage|Home/i);
 }});
 ```

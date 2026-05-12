@@ -58,6 +58,12 @@ class TestCase(Base):
         default=False,
     )
 
+    is_approved: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=False,
+    )
+
     order_index: Mapped[int] = mapped_column(
         Integer,
         nullable=False,
