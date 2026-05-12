@@ -73,6 +73,12 @@ class ExecutionService:
                 "Generation session not found."
             )
 
+        selected_test_cases = [
+            test_case
+            for test_case in generation_session.test_cases
+            if test_case.is_selected
+        ]
+
         test_script = (
             await self
             .test_script_repository
@@ -186,6 +192,8 @@ class ExecutionService:
             await self.report_service
             .generate_report(
                 completed_execution,
+                selected_test_cases=selected_test_cases,
+                project=generation_session.project,
             )
         )
 

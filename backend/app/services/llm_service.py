@@ -1,5 +1,6 @@
 import json
 import base64
+import re
 from pathlib import Path
 
 from google import genai
@@ -34,8 +35,34 @@ class LLMService:
         )
 
         self.model_name = (
-            "gemini-3.1-flash-lite"
+            settings.gemini_model
         )
+
+    def _harden_generated_playwright_script(
+        self,
+        script_content: str,
+    ) -> str:
+        unsafe_highlight_pattern = re.compile(
+            r"async highlight\(locator: Locator\)\s*\{\s*await locator\.evaluate\(\(el: HTMLElement\) => \{\s*el\.style\.border = '2px solid red';\s*el\.style\.backgroundColor = 'yellow';\s*\}\);\s*\}",
+            re.DOTALL,
+        )
+
+        safe_highlight_helper = """
+  async highlight(locator: Locator) {
+    const handle = await locator.first().elementHandle({ timeout: 1200 }).catch(() => null);
+    if (!handle) return;
+    await handle.evaluate((el: HTMLElement) => {
+      el.style.border = '2px solid red';
+      el.style.backgroundColor = 'yellow';
+    }).catch(() => null);
+  }""".strip("\n")
+
+        hardened_script = unsafe_highlight_pattern.sub(
+            safe_highlight_helper,
+            script_content,
+        )
+
+        return hardened_script
 
     def _clean_json_response(
         self,
@@ -172,6 +199,10 @@ class LLMService:
             prompt
         )
 
+        content = self._harden_generated_playwright_script(
+            content
+        )
+
         if "@playwright/test" not in content or "test(" not in content:
             import logging
             logger = logging.getLogger(__name__)
@@ -186,9 +217,11 @@ class LLMService:
     async def generate_test_report(
         self,
         execution: TestExecution,
+        structured_execution_context: dict,
     ) -> TestReportGenerationResponse:
         prompt = build_test_report_prompt(
             execution,
+            structured_execution_context,
         )
 
         response_json = (

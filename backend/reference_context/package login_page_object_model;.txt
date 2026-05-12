@@ -1,0 +1,779 @@
+package login_page_object_model;
+
+import java.util.ArrayList;
+import java.util.Set;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.How;
+import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
+
+import base.Global_variables;
+
+
+public class Login_001_pom  extends Global_variables{
+
+	//Variables used to store the data and validate the test scripts	
+	String expected_visibility="text";
+	String expected_passwordHide="password";
+	String actual_visibility;
+//	String expectedLandingPageUrl="https://certification.validationmastercloud.com/ValidationMaster/LandingScreen.aspx";
+	String actualLandingPageUrl;
+	public	String expectedusername;
+	public	String emptyusername=null;
+	public	String expectedpassword;
+	public	String emptypassword=null;
+	public boolean passwordfieldstatus;
+	public	boolean checkboxstatus;
+	public boolean keepmeloggedincheckboxfield;
+	public String actualhomepageurl;
+	public boolean passwordfieldpresence;
+	public boolean usernamefieldpresence;
+	public boolean forgotyourpasswordlinkpresence;
+	public boolean loginbuttonpresence;
+	protected WebDriverWait wait ;
+	public 	String parentwindow;
+	public boolean pagedisplayed;
+	public String selectlinkopeninnewtab;	
+	public String actualonshoretechurl;
+	public boolean navigatedtoonshoretechpage;
+	public boolean navigatedtohomepage;
+	public String expectedhomepageUrl="https://maintenance.validationmastercloud.com/ValidationMaster/24/MyPage.aspx";
+	public String loginurl="https://maintenance.validationmastercloud.com/ValidationMaster";
+	public String onshoretechUrl="https://onshoretech.com/";
+	//public String expectedloginpageurl="https://maintenance.validationmastercloud.com/ValidationMaster/Login.aspx";
+	//public String expectedforgotpasswordpageurl="https://maintenance.validationmastercloud.com/ValidationMaster/EmailPassword.aspx";
+	public WebDriver driver;
+	public Actions action;
+	public JavascriptExecutor executor;
+
+
+	public Login_001_pom(WebDriver driver) {
+		this.driver = driver;
+		this.executor = (JavascriptExecutor) this.driver; 
+	}
+	
+
+	@FindBy (how=How.XPATH, using="//*[@id=\"divMainContent\"]/div/div/div/div[1]/div/div[1]/img") WebElement validationmasterlogoimage;
+	@FindBy (how=How.XPATH, using="//div[contains(text(),'Login')]") WebElement logintitle;
+	@FindBy (how=How.XPATH, using="//input[@id='cplMainContent_LoginUser_UserName']") WebElement usernamefield;
+	@FindBy (how=How.XPATH, using="//input[@id='cplMainContent_LoginUser_Password']") WebElement passwordfield;
+	@FindBy (how=How.XPATH, using="//input[@id='cplMainContent_LoginUser_RememberMe']") WebElement keepmeloggedincheckbox;
+	@FindBy (how=How.XPATH, using="//a[@id='cplMainContent_LoginUser_lnkForgotUserPassword']") WebElement forgotyourpasswordlink;
+	@FindBy (how=How.XPATH, using="//input[@id='btnLogin']") WebElement loginbutton;	
+//	@FindBy (how=How.XPATH, using="/html/body/div[2]/form/div[3]/div[3]/div/div[3]/input") WebElement loginbutton;	
+	@FindBy (how=How.XPATH, using="//span[contains(text(),'You need to enter a username')]") WebElement emptyusernameerrormessage;
+	@FindBy (how=How.XPATH, using="//span[contains(text(),'You need to enter a password')]") WebElement emptypassworderrormessage;
+	@FindBy (how=How.XPATH, using="//span[@id='cplMainContent_LoginUser_FailureTextUserName']") WebElement invalidusernameerrormessage;
+	@FindBy (how=How.XPATH, using="//span[@id='cplMainContent_LoginUser_FailureText_text']") WebElement invalidpassworderrormessage;
+	@FindBy (how=How.XPATH, using="//span[@id='cplMainContent_LoginUser_FailureTextPassword']") WebElement loginfail_error_message;
+	@FindBy (how=How.XPATH, using="//button[@id='globalNav_userDropdown']") WebElement vmdashboardpage;
+	@FindBy (how=How.XPATH, using="//img[@id='imgProductLogo']") WebElement validationmasterloginPage;
+	@FindBy (how=How.XPATH, using="//h1[contains(text(),'Forgot Your Password?')]") WebElement forgotyourpasswordpage;	
+	@FindBy (how=How.XPATH, using="//a[@id='lnkCompany']") WebElement onshoretechlink;
+	@FindBy (how=How.XPATH, using="/html/body/div[1]/header/div/div/section/div/div/div[2]/div/div/div/div/div/a/img") WebElement onshoretechpage;
+	@FindBy (how=How.XPATH, using="/html/body/form/div[4]/div[1]/div/div/a/div") WebElement homepage;
+	@FindBy (how=How.XPATH, using="//body/form[@id='actionlessForm']/div[@id='divMainContent']/div[1]/div[1]/div[1]/div[2]/div[1]/div[8]") WebElement keepme_loggedIn;
+	@FindBy (how=How.XPATH, using="//a[@id='cplMainContent_btnSignOffOthers']") WebElement logout_from_other_location;
+	@FindBy (how=How.XPATH, using="//a[@id='cplMainContent_btnChange']") WebElement license_details;	
+	@FindBy (how=How.XPATH, using="//*[contains(text(),'Contact support')]") WebElement Contact_support;	
+	@FindBy (how=How.XPATH, using="//span[contains(text(),'Contact Us')]") WebElement Contact_support_page;	
+	@FindBy (how=How.XPATH, using="//a[@id='tstGlobalNavigation_rptNavigationLinks_lnkSecondaryNavigation_0']") WebElement mypage_link;	
+	@FindBy (how=How.XPATH, using="//*[@id=\"masthead\"]/div/section/div[2]/div[2]/div/div/div/a/img") WebElement OnshoreTech_Group_page;	
+	@FindBy (how=How.XPATH, using="//body/div[1]/div[1]/div[1]/img[1]") WebElement landing_page;
+	@FindBy (how=How.XPATH, using="//a[@id='lnkCompany']") WebElement login_with_copyright_link;
+	@FindBy (how=How.XPATH, using="//header/div[1]/section[1]/div[2]/div[2]/div[1]/div[1]/div[1]/a[1]/img[1]") WebElement login_with_otg_page;	
+	@FindBy (how=How.XPATH, using="//input[@id='cplMainContent_LoginUser_btn_Azure AD']") WebElement login_with_azure_button;
+	@FindBy (how=How.XPATH, using="//*[@id=\"lightbox\"]/div[2]/img") WebElement login_with_azure_page;	
+	@FindBy (how=How.XPATH, using="//input[@id='cplMainContent_LoginUser_btn_Google']") WebElement login_with_google_button;
+	@FindBy (how=How.XPATH, using="//*[@id=\"yDmH0d\"]/c-wiz/c-wiz/div/div/div[2]") WebElement login_with_google_page;	
+	@FindBy (how=How.XPATH, using="//input[@id='cplMainContent_LoginUser_btn_GitHub']") WebElement login_with_github_button;
+	@FindBy (how=How.XPATH, using="//*[@id=\"login\"]/div[3]/div/p") WebElement login_with_github_page;	
+	@FindBy (how=How.XPATH, using="//input[@id='cplMainContent_LoginUser_btn_GitLab']") WebElement login_with_gitlab_button;
+	@FindBy (how=How.XPATH, using="/html/body/div[1]/div[1]/div/div[2]/div[1]/h1") WebElement login_with_gitlab_page;	
+	@FindBy (how=How.XPATH, using="//input[@id='cplMainContent_LoginUser_btn_Active Directory FS']") WebElement login_with_active_directory_fs_button;
+	@FindBy (how=How.XPATH, using="") WebElement login_with_active_directory_fs_page;	
+	@FindBy (how=How.XPATH, using="//input[@id='cplMainContent_LoginUser_btn_Okta']") WebElement login_with_okta_button;
+	@FindBy (how=How.XPATH, using="") WebElement login_with_okta_page;	
+	@FindBy (how=How.XPATH, using="//img[@id='show_password']") WebElement hide_icon;
+	
+	//Login with Gitlab
+	@FindBy (how=How.XPATH, using="//*[@id=\"user_login\"]") WebElement gitlab_email_field;
+	@FindBy (how=How.XPATH, using="//*[@id=\"user_password\"]") WebElement gitlab_password_field;
+	@FindBy (how=How.XPATH, using="/html/body/div[1]/div[1]/div/div[2]/div[2]/div[1]/form/button") WebElement gitlab_signIn_button;
+	@FindBy (how=How.XPATH, using="//*[@id=\"cplMainContent_LoginUser_lnkConnectAccount\"]") WebElement link_an_existing_user_button;
+	@FindBy (how=How.XPATH, using="//*[@id=\"cplMainContent_LoginUser_ltrOAuthRefresh\"]") WebElement link_an_existing_user_Cancel_button;
+	
+	//Login with Google
+	@FindBy (how=How.XPATH, using="//*[@id=\"identifierId\"]") WebElement gmail_email_field;
+	@FindBy (how=How.XPATH, using="//*[@id=\"identifierNext\"]/div/button/div[1]") WebElement gmail_email_next;
+	@FindBy (how=How.XPATH, using="//*[@id=\"password\"]/div[1]/div/div[1]/input") WebElement gmail_password_field;
+	@FindBy (how=How.XPATH, using="//*[@id=\"passwordNext\"]/div/button/div[1]") WebElement gmail_password_next;
+	
+	public void navigate_to_the_login_page()
+	{
+		executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');", logintitle);
+		pagedisplayed=	logintitle.isDisplayed();
+		actualLoginPageUrl=driver.getCurrentUrl();
+	}
+	
+	public void enter_the_data_in_the_username_field()
+	{
+		executor.executeScript("arguments[0].setAttribute('style', '');", logintitle );
+		executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');",  usernamefield);
+		usernamefield.sendKeys(actualUsername);
+	}
+	
+	public void username_field_should_accept_the_data()
+	{
+		executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');",  usernamefield);
+		expectedusername=usernamefield.getAttribute("value");
+	}
+	
+	public void clear_the_data_in_the_Username_field()
+	{
+		executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');",  usernamefield);
+		usernamefield.clear();
+	}
+	
+	public void it_should_clear_data_in_the_username_field()
+	{
+		executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');", usernamefield );
+		expectedusername=usernamefield.getAttribute("value");	
+	}
+	
+	public void enter_the_data_in_the_password_field()
+	{
+		executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');", passwordfield );
+		executor.executeScript("arguments[0].setAttribute('style', '');", logintitle );
+		passwordfield.sendKeys("admin123");		
+	}
+		
+	public void password_field_should_accept_the_data()
+	{
+		executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');", passwordfield );
+		expectedpassword=passwordfield.getAttribute("value");		
+	}
+	
+	public void clear_the_data_in_the_password_field() throws Exception
+	{
+		executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');", passwordfield );
+		passwordfield.clear();
+		Thread.sleep(1000);		
+	}
+	
+	public void it_should_clear_data_in_the_password_field()
+	{
+		executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');",passwordfield  );
+		expectedpassword=passwordfield.getAttribute("value");
+	}
+	
+	public void enter_the_valid_username()
+	{
+		executor.executeScript("arguments[0].setAttribute('style', '');", logintitle);
+		executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');", usernamefield);
+		usernamefield.sendKeys(actualUsername);
+	}
+	
+	public void enter_the_valid_password()
+	{
+		executor.executeScript("arguments[0].setAttribute('style', '');", logintitle);
+		executor.executeScript("arguments[0].setAttribute('style', '');", usernamefield);
+		executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');", passwordfield);
+		passwordfield.sendKeys(actualPassword);
+	}
+	
+	public void click_on_login_button() throws Exception
+	{
+		executor.executeScript("arguments[0].setAttribute('style', '');", logintitle);
+		executor.executeScript("arguments[0].setAttribute('style', '');",passwordfield );
+		executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');", loginbutton); 
+		action=new Actions(driver);
+		action.moveToElement(loginbutton).click().perform();
+		
+		
+		//loginbutton.click();
+		//executor.executeScript("arguments[0].click();", loginbutton);
+		Thread.sleep(1000);
+		
+		//In order to logout from the multiple location 
+		if(driver.findElements(By.xpath("//a[@id='cplMainContent_btnSignOffOthers']")).size()==1)
+		{
+			logout_from_other_location.click();
+		}
+		
+		if(driver.findElements(By.xpath("//h1[@id='cplMainContent_lblMessage']")).size()==1)
+		{
+			license_details.click();
+			Thread.sleep(2000);
+			mypage_link.click();
+			
+		}
+	}
+	
+	public void enter_invalid_username()
+	{
+		executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');",  usernamefield);
+		executor.executeScript("arguments[0].setAttribute('style', '');", logintitle );
+		usernamefield.sendKeys("trail123");
+	}
+	
+	public void enter_invalid_password()
+	{
+		//executor.executeScript("arguments[0].setAttribute('style', '');", logintitle );
+		passwordfield.sendKeys("12345678");
+		executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');", passwordfield );
+	}
+
+	public void display_an_error_message_as_invalid_username_or_password()
+	{
+		executor.executeScript("arguments[0].setAttribute('style', '');",  loginbutton);
+		executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');", invalidusernameerrormessage );
+		executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');",  invalidpassworderrormessage);
+		invalidusernameerrormessage.isDisplayed();
+		invalidpassworderrormessage.isDisplayed();
+	}	
+	
+	public void display_an_error_message_as_please_enter_a_valid_password()
+	{
+		executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');", invalidpassworderrormessage );
+		invalidpassworderrormessage.isDisplayed();
+	}
+	
+	public void display_an_error_message_as_please_enter_a_valid_username()
+	{
+		executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');",  invalidusernameerrormessage);
+		invalidusernameerrormessage.isDisplayed();
+	}
+	
+	public void display_an_error_message_as_please_enter_a_valid_username_and_password()
+	{
+		executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');", emptyusernameerrormessage );
+		executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');", emptypassworderrormessage );
+		emptyusernameerrormessage.isDisplayed();
+		emptypassworderrormessage.isDisplayed();
+	}	
+	
+	public void click_on_Keep_me_logged_in_Check_box()
+	{
+		executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 10px solid red;');", keepme_loggedIn );
+		executor.executeScript("arguments[0].setAttribute('style', '');", logintitle );
+		keepmeloggedincheckbox.click();
+	}
+	
+	public void keep_me_logged_in_check_box_should_get_selected()
+	{
+		executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 10px solid red;');",  keepme_loggedIn);
+		 checkboxstatus=keepmeloggedincheckbox.isSelected();		
+	}
+	
+	public void click_on_Keep_me_logged_in_Check_box_which_is_already_selected()
+	{
+		executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 10px solid red;');",  keepme_loggedIn);
+		executor.executeScript("arguments[0].setAttribute('style', '');", logintitle );
+		keepmeloggedincheckbox.isSelected();
+		keepmeloggedincheckbox.click();
+		checkboxstatus=keepmeloggedincheckbox.isSelected();
+	}	
+
+	public void keep_me_logged_in_check_box_should_get_unselected()
+	{
+		executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 10px solid red;');",  keepme_loggedIn);
+		keepmeloggedincheckbox.isSelected();	
+	}	
+
+	public void it_should_display_the_validationmaster_title_with_logo()
+	{
+		executor.executeScript("arguments[0].setAttribute('style', '');", logintitle);
+		executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');", validationmasterlogoimage);
+		validationmasterlogoimage.isDisplayed();	
+	}
+	
+//	public void it_should_display_please_login_heading()
+//	{
+//		executor.executeScript("arguments[0].setAttribute('style', '');", validationmasterlogoimage);
+//		executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');", logintitle);
+//		logintitle.isDisplayed();	
+//	}
+	
+	public void it_should_display_username_field()
+	{
+		executor.executeScript("arguments[0].setAttribute('style', '');", validationmasterlogoimage );
+		executor.executeScript("arguments[0].setAttribute('style', '');", logintitle);
+		executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');", usernamefield);
+		usernamefieldpresence=usernamefield.isDisplayed();	
+	}
+	
+	public void it_should_display_password_field()
+	{
+		executor.executeScript("arguments[0].setAttribute('style', '');", usernamefield);
+		executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');", passwordfield);
+		passwordfieldstatus=passwordfield.isDisplayed();
+	}
+	
+	public void it_should_display_keep_me_logged_in_check_box()
+	{
+		executor.executeScript("arguments[0].setAttribute('style', '');", passwordfield);
+		executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');", keepme_loggedIn);
+		keepmeloggedincheckboxfield=keepmeloggedincheckbox.isDisplayed();
+		
+	}
+	
+	public void it_should_display_login_button() throws Exception
+	{
+		executor.executeScript("arguments[0].setAttribute('style', '');", keepme_loggedIn);
+		executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 5px solid red;');", loginbutton);
+		loginbuttonpresence=loginbutton.isDisplayed();
+	
+		Thread.sleep(3000);
+		//executor.executeScript("arguments[0].mouseOver()", loginbutton);
+	//	executor.executeScript("arguments[0].focus()", loginbutton);
+		//executor.executeScript("arguments[0].style.border='2px solid red'", loginbutton);
+
+		//executor.executeScript("arguments[0].scrollIntoView();", loginbutton);
+//		action=new Actions(driver);
+//		action.moveToElement(driver.findElement(By.xpath("//h1[contains(text(),'Please Login')]"))).perform();	
+		Thread.sleep(1000);
+	}
+	
+	public void it_should_display_forgot_your_password_link()
+	{
+		executor.executeScript("arguments[0].setAttribute('style', '');", loginbutton);
+		executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');", forgotyourpasswordlink);
+		forgotyourpasswordlinkpresence=	forgotyourpasswordlink.isDisplayed();
+		//executor.executeScript("arguments[0].setAttribute('style', '');", forgotyourpasswordlink);
+	}
+
+	public void it_should_display_contact_support_button()
+	{
+		executor.executeScript("arguments[0].setAttribute('style', '');", forgotyourpasswordlink );
+		executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');", Contact_support);
+		Contact_support.isDisplayed();
+	}
+	
+	public void perform_login() throws Exception
+	{
+		executor.executeScript("arguments[0].setAttribute('style', '');", logintitle );
+		usernamefield.sendKeys(actualUsername);
+		Thread.sleep(1000);
+		passwordfield.sendKeys(actualPassword);
+		Thread.sleep(1000);
+		loginbutton.click();
+		
+		//loginbutton.click();
+		//executor.executeScript("arguments[0].click();", loginbutton);
+		Thread.sleep(1000);
+		
+		//In order to logout from the multiple location 
+		if(driver.findElements(By.xpath("//a[@id='cplMainContent_btnSignOffOthers']")).size()==1)
+		{
+			logout_from_other_location.click();
+		}
+		
+		if(driver.findElements(By.xpath("//h1[@id='cplMainContent_lblMessage']")).size()==1)
+		{
+			license_details.click();
+			Thread.sleep(2000);
+			mypage_link.click();
+			
+		}
+	}
+	
+	public void open_the_new_tab()
+	{
+		 parentwindow=driver.getWindowHandle();
+		 selectlinkopeninnewtab = Keys.chord(Keys.CONTROL,Keys.RETURN); 
+		 	//Open new tab
+		 JavascriptExecutor jse = (JavascriptExecutor)driver;
+		 jse.executeScript("window.open()");
+		   //Switch to new tab 
+		 ArrayList<String> tabs = new ArrayList<String> (driver.getWindowHandles());
+		 driver.switchTo().window(tabs.get(1));
+	}
+	
+	public void again_enter_the_login_URL_and_click_on_enter()
+	{
+		driver.navigate().to(baseUrl);
+	}
+	
+	public void it_should_navigate_to_the_validationmaster_home_page()
+	{
+		vmdashboardpage.isDisplayed();		
+	}
+	
+	public void navigate_to_homepage()
+	{
+		vmdashboardpage.isDisplayed();
+		actualhomepageurl=driver.getCurrentUrl();
+	}
+		
+	public void click_on_on_shore_technology_group_link() throws Exception
+	{	
+			parentWindow=driver.getWindowHandle();
+			onshoretechlink.click();
+			Set<String> handles=driver.getWindowHandles();
+			 for(String windowHandle  : handles)
+		       {
+		       if(!windowHandle.equals(parentWindow))
+		    	   
+		          {
+		    	   Thread.sleep(2000);
+		          driver.switchTo().window(windowHandle);
+		          }
+		       }		
+	}
+		
+	public void navigate_to_the_on_shore_teshnology_group_website()
+	{
+		actualonshoretechurl=driver.getCurrentUrl();	
+		executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');",  OnshoreTech_Group_page);
+	}
+	
+	public void perform_login_in_one_session() throws Exception
+	{
+		usernamefield.sendKeys(actualUsername);
+		Thread.sleep(1000);
+		passwordfield.sendKeys(actualPassword);
+		Thread.sleep(1000);
+		loginbutton.click();
+		
+		//loginbutton.click();
+		//executor.executeScript("arguments[0].click();", loginbutton);
+		Thread.sleep(1000);
+		
+		//In order to logout from the multiple location 
+		if(driver.findElements(By.xpath("//a[@id='cplMainContent_btnSignOffOthers']")).size()==1)
+		{
+			logout_from_other_location.click();
+		}
+		
+		if(driver.findElements(By.xpath("//h1[@id='cplMainContent_lblMessage']")).size()==1)
+		{
+			license_details.click();
+			Thread.sleep(2000);
+			mypage_link.click();
+			
+		}
+		
+	}	
+	
+	public void it_should_not_Login_and_display_an_error_message_as_you_are_already_logged_in_an_another_session()
+	{
+		navigatedtohomepage=homepage.isDisplayed();	
+	}
+	
+	public void enter_the_inactive_user_username_and_password() throws Exception
+	{
+		executor.executeScript("arguments[0].setAttribute('style', '');", logintitle );
+		usernamefield.sendKeys(inactive_username);
+		Thread.sleep(1000);
+		passwordfield.sendKeys(inactive_password);
+		Thread.sleep(1000);
+		loginbutton.click();
+	}
+		
+	public void login_should_fail_and_display_an_error_message_as_your_login_attempt_was_not_successful_please_try_again()
+	{
+		loginfail_error_message.isDisplayed();
+		executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');",loginfail_error_message   );
+	}
+	
+	public void login_should_fail_and_display_an_error_message_as_you_need_to_enter_a_user_name_and_you_need_to_enter_a_password()
+	{
+		emptyusernameerrormessage.isDisplayed();
+		emptypassworderrormessage.isDisplayed();
+		executor.executeScript("arguments[0].setAttribute('style', '');",  loginbutton);
+		executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');", emptypassworderrormessage );
+		executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');", emptyusernameerrormessage );
+	}
+	
+	public void login_should_fail_and_display_an_error_message_as_you_need_to_enter_a_password()
+	{
+		executor.executeScript("arguments[0].setAttribute('style', '');", loginbutton   );
+		executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');", emptypassworderrormessage  );
+		emptypassworderrormessage.isDisplayed();
+	}
+	
+	public void login_should_fail_and_display_an_error_message_as_invalid_username()
+	{
+	    invalidusernameerrormessage.isDisplayed();
+	    executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');",  invalidusernameerrormessage );
+	}
+		
+	public void login_should_fail_and_display_an_error_message_as_you_need_to_enter_a_user_name()
+	{
+		emptyusernameerrormessage.isDisplayed();
+	}
+
+	public void click_on_the_login_with_azure_button()
+	{
+		login_with_azure_button.click();
+	}
+
+	public void click_on_the_login_with_google_button()
+	{
+		login_with_google_button.click();
+	}
+
+	public void click_on_the_login_with_github_button()
+	{
+		login_with_github_button.click();
+	}
+	
+	public void click_on_the_login_with_gitlab_button()
+	{
+		login_with_gitlab_page.click();
+	}
+	
+	
+	public void click_on_the_login_with_active_directory_fs_button()
+	{
+		login_with_active_directory_fs_button.click();
+	}
+	
+	public void click_on_the_login_with_okta_button()
+	{
+		login_with_okta_button.click();
+	}
+
+	public void click_on_hide_icon()
+	{
+		executor.executeScript("arguments[0].setAttribute('style', '');",  logintitle);
+		if(passwordfield.getAttribute("type").equalsIgnoreCase("text"))
+		{
+			hide_icon.click();
+		}
+		
+		else
+		{
+			System.out.println("Icon was already in Hide state");
+		}
+		executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');",  hide_icon);
+	}
+	
+	public void it_should_hide_the_password()
+	{
+		executor.executeScript("arguments[0].setAttribute('style', '');", hide_icon );
+		actual_visibility=passwordfield.getAttribute("type");
+		Assert.assertEquals(actual_visibility, expected_passwordHide);
+		executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');", passwordfield );
+	}
+	
+	public void click_on_unhide_icon()
+	{
+		executor.executeScript("arguments[0].setAttribute('style', '');",  logintitle);
+		if(passwordfield.getAttribute("type").equalsIgnoreCase("text"))
+		{	
+			System.out.println("Icon was already in UnHide state");
+		}
+		
+		else
+		{
+			hide_icon.click();
+		}
+		executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');",hide_icon  );
+		
+	}
+	
+	public void the_password_should_be_visible()
+	{
+		executor.executeScript("arguments[0].setAttribute('style', '');",  hide_icon);
+		String actual_visibility=passwordfield.getAttribute("type");
+		Assert.assertEquals(actual_visibility, expected_visibility);
+		executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');", passwordfield );
+	}
+	
+	public void click_on_contact_support_button() throws Exception
+	{		
+		parentWindow=driver.getWindowHandle();
+		Contact_support.click();
+		Set<String> handles=driver.getWindowHandles();
+		 for(String windowHandle  : handles)
+	       {
+	       if(!windowHandle.equals(parentWindow))
+	    	   
+	          {
+	    	   Thread.sleep(2000);
+	          driver.switchTo().window(windowHandle);
+	          }
+	       }
+	}
+	
+	public void it_should_open_the_onshore_technology_group_contact_us_page_in_the_new_tab()
+	{
+		Contact_support_page.isDisplayed();
+	}
+	
+	public void login_should_successful_and_navigate_to_the_landing_page()
+	{		
+		landing_page.isDisplayed();
+		actualLandingPageUrl=driver.getCurrentUrl();		
+		executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');", landing_page );
+		Assert.assertEquals(actualLandingPageUrl, expectedLandingPageUrl);
+	}
+	
+	public void it_should_open_the_login_with_github_page()
+	{
+		login_with_github_page.isDisplayed();
+		executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');", login_with_github_page);
+	}
+		
+	public void it_should_open_the_login_with_gitlab_page()
+	{
+		login_with_gitlab_page.isDisplayed();
+		executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');",login_with_gitlab_page );
+	}
+		
+	public void it_should_open_the_login_with_active_directory_fs_page()
+	{
+		login_with_active_directory_fs_page.isDisplayed();
+		executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');",login_with_active_directory_fs_page );
+	}
+		
+	public void click_on_the_copyright_link() throws Exception
+	{
+		
+		parentWindow=driver.getWindowHandle();
+		login_with_copyright_link.click();
+		Set<String> handles=driver.getWindowHandles();
+		 for(String windowHandle  : handles)
+	       {
+	       if(!windowHandle.equals(parentWindow))
+	    	   
+	          {
+	    	   Thread.sleep(2000);
+	          driver.switchTo().window(windowHandle);
+	          }
+	       }	
+	}
+		
+	public void it_should_open_the_onshore_technology_group_website_in_new_tab()
+	{
+		login_with_otg_page.isDisplayed();
+		executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');", login_with_otg_page);
+	}
+	
+	
+	public void open_new_session_with_login_url()
+	{
+//		parentWindow = driver.getWindowHandle();
+//		System.out.println("Parent windwo="+parentWindow);
+//		   System.setProperty("webdriver.chrome.driver", ".//Drivers/chromedriver.exe");
+//		   ChromeOptions options = new ChromeOptions();
+//		   options.addArguments("--incognito");
+//		   driver = new ChromeDriver();
+//		   driver.manage().window().maximize();
+//		   driver.get(baseUrl);
+//			Set<String> handles =  driver.getWindowHandles();
+//			System.out.println("all window handles"+handles);
+//			   for(String windowHandle  : handles)
+//			       {
+//			       if(!windowHandle.equals(parentWindow))
+//			          {
+//			    	   driver.switchTo().window(windowHandle);
+//			          }
+//			       }
+			   
+			   
+			   
+			// Store the current window handle
+			   String winHandleBefore = driver.getWindowHandle();
+			   
+			// Perform the click operation that opens new window
+			   System.setProperty("webdriver.chrome.driver", ".//Drivers/chromedriver.exe");
+			   ChromeOptions options = new ChromeOptions();
+			   options.addArguments("--incognito");
+			   driver = new ChromeDriver();
+			   driver.manage().window().maximize();
+				// Switch to new window opened
+			   for(String winHandle : driver.getWindowHandles())
+			   {
+			       driver.switchTo().window(winHandle);
+			   }
+			   driver.get(baseUrl);
+			   
+
+			   
+		
+	}
+	public void it_should_open_the_login_with_azure_page()
+	{
+		login_with_azure_page.isDisplayed();
+		executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');",login_with_azure_page );
+	}
+	
+	public void it_should_open_the_login_with_google_page()
+	{
+		login_with_google_page.isDisplayed();
+		executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');",login_with_google_page );
+	}
+	
+	public void it_should_open_the_login_with_okta_page()
+	{
+		login_with_okta_page.isDisplayed();
+		executor.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');", login_with_okta_page);
+	}
+	
+	
+	//Login with gitlab account
+	public void enter_the_gitlab_email_and_password()
+	{
+		gitlab_email_field.sendKeys("bijwar.jeevan@gleecus.com");
+		gitlab_password_field.sendKeys("Jeevan96@");
+		
+	}
+	
+	public void click_on_gitlab_sign_in_button()
+	{
+		gitlab_signIn_button.click();
+	}
+	
+	public void click_on_link_an_existing_user_to_this_account()
+	{
+		link_an_existing_user_button.click();
+	}
+	
+	
+	//Login with Gmail
+	public void enter_the_registered_gmail_id()
+	{
+		gmail_email_field.sendKeys("bijwar.jeevan@gleecus.com");
+	}
+	
+	public void click_on_next_button()
+	{
+		gmail_email_next.click();
+	}
+	
+	public void enter_the_gmail_password_and_click_on_next_button()
+	{
+		gmail_password_field.sendKeys("Jeevan96@");
+	}
+	
+	public void click_on_cancel_button_in_the_link_an_existing_user_to_this_account_page()
+	{
+		link_an_existing_user_Cancel_button.click();
+	}
+	
+	public void enter_the_existing_username_and_password()
+	{
+		usernamefield.sendKeys("qatestuser10");
+		passwordfield.sendKeys("admin123");
+	}
+
+	
+	
+	
+	
+	
+	
+}

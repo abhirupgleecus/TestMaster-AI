@@ -99,6 +99,7 @@ TestMaster-AI/
     Copy `.env.example` to `.env` and configure:
     *   `DATABASE_URL`: Your PostgreSQL connection string.
     *   `GEMINI_API_KEY`: Your Google AI Studio API key.
+    *   `GEMINI_MODEL`: Gemini model name to use for discovery, script generation, and report generation. Defaults to `gemini-3.1-flash-lite`.
 4.  **Migrations & Start**:
     ```bash
     alembic upgrade head
@@ -125,6 +126,7 @@ TestMaster-AI/
 | :--- | :---: | :--- |
 | `DATABASE_URL` | Yes | PostgreSQL connection string (Async driver required). |
 | `GEMINI_API_KEY` | Yes | API Key for Google Gemini 3.1. |
+| `GEMINI_MODEL` | No | Gemini model id used by the backend. Defaults to `gemini-3.1-flash-lite`. |
 
 ---
 

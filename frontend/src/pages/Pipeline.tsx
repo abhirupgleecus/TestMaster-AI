@@ -5,6 +5,62 @@ import { CheckCircle2, Circle, Loader2, PlayCircle, BarChart3, ChevronLeft, Shie
 const API_BASE = 'http://127.0.0.1:8000';
 
 type Step = 'HITL' | 'GENERATING_SCRIPT' | 'EXECUTING' | 'REPORT';
+type ReportArtifact = {
+  name?: string;
+  content_type?: string;
+  path?: string;
+  url?: string | null;
+};
+
+type ExecutedTestCase = {
+  planned_title: string;
+  executed_title?: string | null;
+  status: string;
+  raw_status?: string | null;
+  duration_ms?: number | null;
+  description?: string | null;
+  preconditions?: string | null;
+  expected_output?: string | null;
+  steps?: Array<{
+    step_number: number;
+    action: string;
+    expected_result: string;
+  }>;
+  observed_outcome?: string | null;
+  failure_reason?: string | null;
+  screenshots?: ReportArtifact[];
+  artifacts?: ReportArtifact[];
+  location?: {
+    file?: string;
+    line?: number;
+  } | null;
+};
+
+type DetailedAnalysis = {
+  highlights?: string[];
+  failures?: string[];
+  recommendations?: string[];
+  summary?: {
+    selected_test_case_count?: number;
+    executed_test_case_count?: number;
+    passed_test_count?: number;
+    failed_test_count?: number;
+    skipped_test_count?: number;
+    duration_ms?: number | null;
+  };
+  report_artifacts?: {
+    html_report_url?: string | null;
+    json_report_url?: string | null;
+  };
+  executed_test_cases?: ExecutedTestCase[];
+};
+
+type ReportResponse = {
+  executive_summary: string;
+  overall_status: string;
+  confidence_score?: number | null;
+  detailed_analysis?: DetailedAnalysis;
+};
 
 export default function Pipeline() {
   const { sessionId } = useParams();
@@ -16,7 +72,8 @@ export default function Pipeline() {
   const [isLoadingTests, setIsLoadingTests] = useState(true);
   
   const [executionStats, setExecutionStats] = useState<any>(null);
-  const [report, setReport] = useState<any>(null);
+  const [report, setReport] = useState<ReportResponse | null>(null);
+  const reportStatus = report?.overall_status?.toLowerCase();
   
   const [error, setError] = useState<string | null>(null);
   const [viewingStepsTc, setViewingStepsTc] = useState<any | null>(null);
@@ -116,6 +173,37 @@ export default function Pipeline() {
     if (stepIndex < currentIndex) return 'completed';
     if (stepIndex === currentIndex) return 'active';
     return 'pending';
+  };
+
+  const artifactUrl = (url?: string | null) => url ? `${API_BASE}${url}` : null;
+
+  const formatDuration = (ms?: number | null) => {
+    if (!ms) return '0.0s';
+    return `${(ms / 1000).toFixed(1)}s`;
+  };
+
+  const getCaseStatusStyle = (status: string) => {
+    if (status === 'passed') {
+      return {
+        borderColor: 'rgba(16, 185, 129, 0.28)',
+        badgeBg: 'rgba(16, 185, 129, 0.12)',
+        badgeColor: 'var(--success)',
+      };
+    }
+
+    if (status === 'failed') {
+      return {
+        borderColor: 'rgba(239, 68, 68, 0.28)',
+        badgeBg: 'rgba(239, 68, 68, 0.12)',
+        badgeColor: 'var(--error)',
+      };
+    }
+
+    return {
+      borderColor: 'var(--border-color)',
+      badgeBg: 'rgba(255,255,255,0.06)',
+      badgeColor: 'var(--text-secondary)',
+    };
   };
 
   const StepIndicator = ({ step, label, icon: Icon }: any) => {
@@ -288,9 +376,6 @@ export default function Pipeline() {
           <div className="glass-panel" style={{ padding: '2.5rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
               <h3 style={{ fontSize: '1.5rem' }}>AI Deep Analysis</h3>
-              <div style={{ padding: '6px 12px', background: report.overall_status === 'PASSED' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', color: report.overall_status === 'PASSED' ? 'var(--success)' : 'var(--error)', borderRadius: '20px', fontWeight: 600, fontSize: '0.9rem' }}>
-                {report.overall_status}
-              </div>
             </div>
             
             <p className="break-words" style={{ fontSize: '1.1rem', lineHeight: 1.7, marginBottom: '2rem' }}>
@@ -298,11 +383,210 @@ export default function Pipeline() {
             </p>
 
             {report.detailed_analysis && (
-              <div style={{ background: 'rgba(0,0,0,0.3)', padding: '1.5rem', borderRadius: '12px' }}>
-                <h4 style={{ marginBottom: '1rem', color: 'var(--accent-secondary)' }}>Technical Breakdown</h4>
-                <pre className="break-all" style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit', color: 'var(--text-secondary)', lineHeight: 1.6, fontSize: '0.95rem' }}>
-                  {JSON.stringify(report.detailed_analysis, null, 2)}
-                </pre>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                <div style={{ background: 'rgba(0,0,0,0.3)', padding: '1.5rem', borderRadius: '12px' }}>
+                  <h4 style={{ marginBottom: '1rem', color: 'var(--accent-secondary)' }}>Technical Breakdown</h4>
+
+                  {report.detailed_analysis.highlights && report.detailed_analysis.highlights.length > 0 && (
+                    <div style={{ marginBottom: '1.5rem' }}>
+                      <div style={{ fontWeight: 700, marginBottom: '0.75rem' }}>Highlights</div>
+                      <ul style={{ margin: 0, paddingLeft: '1.25rem', color: 'var(--text-secondary)', lineHeight: 1.7 }}>
+                        {report.detailed_analysis.highlights.map((item, idx) => (
+                          <li key={`highlight-${idx}`}>{item}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {report.detailed_analysis.failures && report.detailed_analysis.failures.length > 0 && (
+                    <div style={{ marginBottom: '1.5rem' }}>
+                      <div style={{ fontWeight: 700, marginBottom: '0.75rem' }}>Failures</div>
+                      <ul style={{ margin: 0, paddingLeft: '1.25rem', color: 'var(--text-secondary)', lineHeight: 1.7 }}>
+                        {report.detailed_analysis.failures.map((item, idx) => (
+                          <li key={`failure-${idx}`}>{item}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {report.detailed_analysis.recommendations && report.detailed_analysis.recommendations.length > 0 && (
+                    <div>
+                      <div style={{ fontWeight: 700, marginBottom: '0.75rem' }}>Recommendations</div>
+                      <ul style={{ margin: 0, paddingLeft: '1.25rem', color: 'var(--text-secondary)', lineHeight: 1.7 }}>
+                        {report.detailed_analysis.recommendations.map((item, idx) => (
+                          <li key={`recommendation-${idx}`}>{item}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+
+                {report.detailed_analysis.report_artifacts && (
+                  <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                    {report.detailed_analysis.report_artifacts.html_report_url && (
+                      <a
+                        href={artifactUrl(report.detailed_analysis.report_artifacts.html_report_url) || '#'}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="btn-secondary"
+                        style={{ textDecoration: 'none' }}
+                      >
+                        Open Playwright HTML Report
+                      </a>
+                    )}
+                    {report.detailed_analysis.report_artifacts.json_report_url && (
+                      <a
+                        href={artifactUrl(report.detailed_analysis.report_artifacts.json_report_url) || '#'}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="btn-secondary"
+                        style={{ textDecoration: 'none' }}
+                      >
+                        Open Playwright JSON Report
+                      </a>
+                    )}
+                  </div>
+                )}
+
+                {report.detailed_analysis.executed_test_cases && report.detailed_analysis.executed_test_cases.length > 0 && (
+                  <div>
+                    <h4 style={{ marginBottom: '1rem', color: 'var(--accent-secondary)' }}>Executed Test Cases</h4>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                      {report.detailed_analysis.executed_test_cases.map((testCase, idx) => {
+                        const statusStyle = getCaseStatusStyle(testCase.status);
+                        return (
+                          <div
+                            key={`${testCase.planned_title}-${idx}`}
+                            className="glass-panel"
+                            style={{
+                              padding: '1.5rem',
+                              borderColor: statusStyle.borderColor,
+                              background: 'rgba(0,0,0,0.24)',
+                            }}
+                          >
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', marginBottom: '1rem' }}>
+                              <div>
+                                <h5 className="break-words" style={{ fontSize: '1.15rem', marginBottom: '0.4rem' }}>
+                                  {idx + 1}. {testCase.planned_title}
+                                </h5>
+                                {testCase.executed_title && testCase.executed_title !== testCase.planned_title && (
+                                  <div className="text-secondary" style={{ fontSize: '0.9rem' }}>
+                                    Executed as: {testCase.executed_title}
+                                  </div>
+                                )}
+                              </div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 }}>
+                                <span className="text-secondary" style={{ fontSize: '0.85rem' }}>
+                                  {formatDuration(testCase.duration_ms)}
+                                </span>
+                                <span style={{ padding: '6px 12px', borderRadius: '20px', background: statusStyle.badgeBg, color: statusStyle.badgeColor, fontWeight: 700, fontSize: '0.85rem', textTransform: 'capitalize' }}>
+                                  {testCase.status}
+                                </span>
+                              </div>
+                            </div>
+
+                            {testCase.description && (
+                              <p className="break-words" style={{ color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: '1rem' }}>
+                                {testCase.description}
+                              </p>
+                            )}
+
+                            {testCase.preconditions && (
+                              <div style={{ marginBottom: '1rem' }}>
+                                <div style={{ fontWeight: 700, marginBottom: '0.35rem' }}>Preconditions</div>
+                                <div className="break-words" style={{ color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+                                  {testCase.preconditions}
+                                </div>
+                              </div>
+                            )}
+
+                            {testCase.steps && testCase.steps.length > 0 && (
+                              <div style={{ marginBottom: '1rem' }}>
+                                <div style={{ fontWeight: 700, marginBottom: '0.6rem' }}>Planned Steps</div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                                  {testCase.steps.map((step) => (
+                                    <div key={`${testCase.planned_title}-step-${step.step_number}`} style={{ padding: '0.85rem 1rem', borderRadius: '10px', background: 'rgba(255,255,255,0.04)' }}>
+                                      <div style={{ fontWeight: 600, marginBottom: '0.35rem' }}>
+                                        Step {step.step_number}: {step.action}
+                                      </div>
+                                      <div className="text-secondary" style={{ lineHeight: 1.55 }}>
+                                        Expected: {step.expected_result}
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {testCase.expected_output && (
+                              <div style={{ marginBottom: '1rem' }}>
+                                <div style={{ fontWeight: 700, marginBottom: '0.35rem' }}>Expected Outcome</div>
+                                <div className="break-words" style={{ color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+                                  {testCase.expected_output}
+                                </div>
+                              </div>
+                            )}
+
+                            <div style={{ marginBottom: testCase.screenshots && testCase.screenshots.length > 0 ? '1rem' : 0 }}>
+                              <div style={{ fontWeight: 700, marginBottom: '0.35rem' }}>Observed Outcome</div>
+                              <div className="break-words" style={{ color: testCase.status === 'failed' ? 'var(--error)' : 'var(--text-secondary)', lineHeight: 1.6 }}>
+                                {testCase.failure_reason || testCase.observed_outcome}
+                              </div>
+                            </div>
+
+                            {testCase.screenshots && testCase.screenshots.length > 0 && (
+                              <div style={{ marginBottom: '1rem' }}>
+                                <div style={{ fontWeight: 700, marginBottom: '0.75rem' }}>Screenshot Evidence</div>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
+                                  {testCase.screenshots.map((screenshot, shotIdx) => (
+                                    <a
+                                      key={`${testCase.planned_title}-shot-${shotIdx}`}
+                                      href={artifactUrl(screenshot.url) || '#'}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      style={{ textDecoration: 'none' }}
+                                    >
+                                      <div style={{ borderRadius: '12px', overflow: 'hidden', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-color)' }}>
+                                        <img
+                                          src={artifactUrl(screenshot.url) || ''}
+                                          alt={`${testCase.planned_title} evidence ${shotIdx + 1}`}
+                                          style={{ width: '100%', height: '180px', objectFit: 'cover', display: 'block' }}
+                                        />
+                                        <div style={{ padding: '0.75rem 0.9rem', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+                                          {screenshot.name || `Screenshot ${shotIdx + 1}`}
+                                        </div>
+                                      </div>
+                                    </a>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {testCase.artifacts && testCase.artifacts.length > 0 && (
+                              <div>
+                                <div style={{ fontWeight: 700, marginBottom: '0.75rem' }}>Artifacts</div>
+                                <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                                  {testCase.artifacts.map((artifact, artifactIdx) => (
+                                    <a
+                                      key={`${testCase.planned_title}-artifact-${artifactIdx}`}
+                                      href={artifactUrl(artifact.url) || '#'}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className="btn-secondary"
+                                      style={{ textDecoration: 'none' }}
+                                    >
+                                      {artifact.name || `Artifact ${artifactIdx + 1}`}
+                                    </a>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
             

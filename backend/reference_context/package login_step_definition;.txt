@@ -1,0 +1,553 @@
+package login_step_definition;
+
+import java.awt.RenderingHints.Key;
+import java.util.Set;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.edge.EdgeDriver;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.support.PageFactory;
+import org.testng.Assert;
+import base.Global_variables;
+import driverFactory.WebDriverFactory;
+import io.cucumber.java.After;
+import io.cucumber.java.AfterStep;
+import io.cucumber.java.Scenario;
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
+import io.github.bonigarcia.wdm.WebDriverManager;
+import login_page_object_model.Login_001_pom;
+
+
+
+public class Login_001_stepdef extends Global_variables 
+{		
+	public WebDriver driver;
+	Login_001_pom obj = PageFactory.initElements(WebDriverFactory.getDriver(), Login_001_pom.class);
+	public String parentWindow;
+//	public  Login_001_pom obj;
+	JavascriptExecutor js;
+	//ChromeOptions options;
+	
+	@Given("User should launch the browser")
+	public void user_should_launch_the_browser() {
+		//--------Run the tests through headless-------
+		
+//		WebDriverManager.chromedriver().setup();			
+//		options = new ChromeOptions();
+//		options.addArguments("--headless");
+//		options.addArguments("--window-size=1920,920");
+//		driver = new ChromeDriver(options);
+//		driver.manage().window().maximize();
+//		obj=new Login_001_pom(driver);
+		
+		//------- Run test by launching the browser-----
+		
+//		WebDriverManager.chromedriver().setup();		
+//		options = new ChromeOptions();	
+//		//Run the tests by zoom out-in order to overcome the responsive issue
+//		options.addArguments("force-device-scale-factor=0.9");
+//		options.addArguments("high-dpi-support=0.9");
+//		driver = new ChromeDriver(options);
+//		driver.manage().window().maximize();
+//		obj=new Login_001_pom(driver);
+		
+		// -------------Handling SSL certification error-------
+		
+		//Create instance of ChromeOptions Class
+		//options = new ChromeOptions();
+	//	options.addArguments("force-device-scale-factor=0.9");
+	//	options.addArguments("high-dpi-support=0.9");
+		//Using the accept insecure cert method with true as parameter to accept the untrusted certificate
+	//	options.setAcceptInsecureCerts(true);				
+		//Creating instance of Chrome driver by passing reference of ChromeOptions object
+		//driver = new ChromeDriver(options);
+		//WebDriverFactory.getDriver().manage().window().maximize();
+	//	obj=new Login_001_pom(driver);
+		
+		
+		// -------------Handling SSL certification error and Run in Headless-------
+		
+//		options = new ChromeOptions();
+//		options.addArguments("--headless");
+//		options.setAcceptInsecureCerts(true);	
+//		options.addArguments("--window-size=1920,920");
+//		driver = new ChromeDriver(options);
+//		driver.manage().window().maximize();
+		//obj=new Login_001_pom(driver);
+		
+	}
+	
+	@When("Enter the login URL and click on enter")
+	public void enter_the_login_url_and_click_on_enter() throws Exception {		
+		//WebDriverFactory.getDriver().get(expectedLoginPageUrl);	
+		WebDriverFactory.getDriver().get(baseUrl);	
+		
+		
+	}	
+	
+	@Then("Navigate to the login page")
+	public void navigate_to_the_login_page() {
+		obj.navigate_to_the_login_page();
+	}
+	
+	@Then("Click on keep me logged in check box")
+	public void click_on_keep_me_logged_in_check_box() {
+		obj.click_on_Keep_me_logged_in_Check_box();
+	}
+	
+	@When("Click on keep me logged in check box which is already selected")
+	public void click_on_keep_me_logged_in_check_box_which_is_already_selected() {
+		obj.click_on_Keep_me_logged_in_Check_box_which_is_already_selected();
+	}
+	
+	@Then("Keep me logged in check box should get unselected")
+	public void keep_me_logged_in_check_box_should_get_unselected() {
+		obj.keep_me_logged_in_check_box_should_get_unselected();
+		Assert.assertFalse(obj.checkboxstatus);
+	}
+			
+	@Then("Enter the invalid username")
+	public void enter_the_invalid_username() {
+		obj.enter_invalid_username();
+	}
+	
+	@Then("Enter the invalid password")
+	public void enter_the_invalid_password() {
+		obj.enter_invalid_password();
+	}
+	
+	@When("Click on login button")
+	public void click_on_login_button() throws Exception {
+		obj.click_on_login_button();
+	}
+	
+	@Then("Login should fail and display an error message as invalid username or password")
+	public void login_should_fail_and_display_an_error_message_as_invalid_username_or_password() {
+		obj.display_an_error_message_as_invalid_username_or_password();
+	}
+
+	@Then("Login should fail and display an error message as please enter a valid username")
+	public void login_should_fail_and_display_an_error_message_as_please_enter_a_valid_username() {
+		obj.display_an_error_message_as_please_enter_a_valid_username();
+	}
+	
+	@Then("Login should fail and display an error message as please enter a valid password")
+	public void login_should_fail_and_display_an_error_message_as_please_enter_a_valid_password() {
+		obj.display_an_error_message_as_please_enter_a_valid_password();
+	}
+	
+	@When("Clear the data inside the username field")
+	public void clear_the_data_inside_the_username_field() {
+		obj.clear_the_data_in_the_Username_field();
+	}
+	
+	@Then("It should clear the data inside the username field")
+	public void it_should_clear_the_data_inside_the_username_field() {
+		obj.it_should_clear_data_in_the_username_field();
+		Assert.assertTrue(obj.expectedusername.isEmpty());
+	}	
+
+	@Then("Login should fail and display an error message as please enter a valid username and password")
+	public void login_should_fail_and_display_an_error_message_as_please_enter_a_valid_username_and_password() {
+		obj.display_an_error_message_as_please_enter_a_valid_username_and_password();
+	}
+		
+	@When("Enter the data inside the password field")
+	public void enter_the_data_inside_the_password_field() {
+		obj.enter_the_data_in_the_password_field();
+	}
+	
+	@When("Clear the data inside the password field")
+	public void clear_the_data_inside_the_password_field() throws Exception {
+		obj.clear_the_data_in_the_password_field();
+	}
+	
+	@Then("It should clear the data inside the password field")
+	public void it_should_clear_the_data_inside_the_password_field() {
+		obj.it_should_clear_data_in_the_password_field();
+		Assert.assertTrue(obj.expectedpassword.isEmpty());
+	}
+	
+
+//	@Then("It should display please login heading")
+//	public void it_should_display_please_login_heading() {
+//		obj.it_should_display_please_login_heading();
+//	}
+	
+	@Then("It should display username field")
+	public void it_should_display_username_field() {
+		obj.it_should_display_username_field();
+		Assert.assertTrue(obj.usernamefieldpresence);
+	}
+	
+	@Then("It should display password field")
+	public void it_should_display_password_field() {
+		obj.it_should_display_password_field();
+		Assert.assertTrue(obj.passwordfieldstatus);	
+	}
+	
+	@Then("It should display keep me logged in check box")
+	public void it_should_display_keep_me_logged_in_check_box() {
+		obj.it_should_display_keep_me_logged_in_check_box();
+		Assert.assertTrue(obj.keepmeloggedincheckboxfield);
+	}
+	
+	@Then("It should display login button")
+	public void it_should_display_login_button() throws Exception {
+		obj.it_should_display_login_button();
+		Assert.assertTrue(obj.loginbuttonpresence);
+	}
+	
+	@Then("It should display forgot your password link")
+	public void it_should_display_forgot_your_password_link() {
+		obj.it_should_display_forgot_your_password_link();
+		Assert.assertTrue(obj.forgotyourpasswordlinkpresence);
+	}
+	
+	@Then("Enter the valid password")
+	public void enter_the_valid_password() throws Exception {
+		obj.enter_the_valid_password();
+	
+	}
+	
+	@Then("Enter the valid username")
+	public void enter_the_valid_username() throws Exception {	
+		obj.enter_the_valid_username();		
+	}
+		
+	@When("Again enter the login URL and click on enter")
+	public void again_enter_the_login_url_and_click_on_enter() {
+		obj.again_enter_the_login_URL_and_click_on_enter();
+	}
+	
+	@Then("It should not login and display an error message as you are already logged in an another session")
+	public void it_should_not_login_and_display_an_error_message_as_you_are_already_logged_in_an_another_session() {
+		obj.it_should_not_Login_and_display_an_error_message_as_you_are_already_logged_in_an_another_session();
+		Assert.assertFalse(obj.navigatedtohomepage);		
+	}		
+		
+	@Then("Perform login in one session")
+	public void perform_login_in_one_session() throws Exception {
+		obj.perform_login_in_one_session();
+	}			
+
+	@Then("Username field should accept the data and it should be visible")
+	public void username_field_should_accept_the_data_and_it_should_be_visible() {
+		obj.username_field_should_accept_the_data();
+		Assert.assertEquals(obj.actualUsername, obj.expectedusername);
+	}
+	
+	@Then("Password field should accept the data")
+	public void password_field_should_accept_the_data() {
+		obj.password_field_should_accept_the_data();
+		Assert.assertEquals(obj.actualPassword, obj.expectedpassword);
+	}	
+
+	@Then("Keep me logged in check box should get selected")
+	public void keep_me_logged_in_check_box_should_get_selected() {
+		obj.keep_me_logged_in_check_box_should_get_selected();
+		Assert.assertTrue(obj.checkboxstatus);		
+	}	
+	
+	@Then("Open new session with login url")
+	public void open_new_session_with_login_url() {
+		//obj.open_new_session();
+//		 parentWindow = WebDriverFactory.getDriver().getWindowHandle();
+//		System.setProperty("webdriver.edge.driver", "D://Drivers/msedgedriver.exe");
+//		// Start Edge Session
+//		driver = new EdgeDriver();
+//		WebDriverFactory.getDriver().manage().window().maximize();
+//		WebDriverFactory.getDriver().get(baseUrl);
+//		Set<String> handles =  WebDriverFactory.getDriver().getWindowHandles();
+//		   for(String windowHandle  : handles)
+//		       {
+//		       if(!windowHandle.equals(parentWindow))
+//		          {
+//		    	   WebDriverFactory.getDriver().switchTo().window(windowHandle);
+//		          }
+//		       }
+		   
+		   
+		   
+		obj.open_new_session_with_login_url();	
+			
+	}
+	
+	@Then("Perform login in another browser")
+	public void perform_login_in_another_browser() throws Exception {
+		Thread.sleep(1000);
+		WebDriverFactory.getDriver().findElement(By.xpath("//*[@id=\"cplMainContent_LoginUser_UserName\"]")).sendKeys("qatestuser1");
+		Thread.sleep(1000);
+		WebDriverFactory.getDriver().findElement(By.xpath("//*[@id=\"cplMainContent_LoginUser_Password\"]")).sendKeys("admin123");
+		Thread.sleep(3000);
+		WebDriverFactory.getDriver().findElement(By.xpath("//input[@id='btnLogin']")).click();
+		Thread.sleep(1000);
+	}
+	
+	@Then("Perform login")
+	public void perform_login() throws Exception {
+		obj.perform_login();				
+	}
+	
+	@Then("Open the new tab")
+	public void open_the_new_tab() {
+		obj.open_the_new_tab();
+	}
+	
+	@When("Click on onshore technology group link")
+	public void click_on_on_shore_technology_group_link() throws Exception {
+		obj.click_on_on_shore_technology_group_link();
+		Thread.sleep(1000);
+	}
+	
+	@Then("It should navigate to the onshore technology group website")
+	public void it_should_navigate_to_the_on_shore_technology_group_website() throws Exception {
+		Thread.sleep(2000);
+		obj.navigate_to_the_on_shore_teshnology_group_website();
+		Assert.assertEquals(obj.actualonshoretechurl, obj.onshoretechUrl);	
+	}
+	
+	@When("Enter the data inside the username field")
+	public void enter_the_data_inside_the_username_field() {
+		obj.enter_the_data_in_the_username_field();
+	}	
+	
+	@When("Navigate to the login  page and observe the UI")
+	public void navigate_to_the_login_page_and_observe_the_ui() {
+		obj.navigate_to_the_login_page();
+	}
+	
+
+	@Then("It should navigate the ValidationMaster login page")
+	public void it_should_navigate_the_validation_master_login_page() {
+		obj.navigate_to_the_login_page();
+		// Assert.assertEquals(obj.actualLoginPageUrl, obj.expectedloginpageurl);
+	}
+	
+	@Then("It should display the ValidationMaster title with logo")
+	public void it_should_display_the_validation_master_title_with_logo() {
+		obj.it_should_display_the_validationmaster_title_with_logo();
+	}
+
+	@Then("Login should successful and navigate to the ValidationMaster home page")
+	public void login_should_successful_and_navigate_to_the_validation_master_home_page() {
+		obj.navigate_to_homepage();
+		Assert.assertEquals(obj.actualhomepageurl, obj.expectedhomepageUrl);
+	}
+		
+	@Then("It should navigate to the ValidationMaster home page")
+	public void it_should_navigate_to_the_validation_master_home_page() {
+		obj.it_should_navigate_to_the_validationmaster_home_page();
+	}
+
+	@Then("It should navigate to the ValidationMaster login page")
+	public void it_should_navigate_to_the_validation_master_login_page() {
+		obj.navigate_to_the_login_page();	
+		Assert.assertTrue(obj.pagedisplayed);
+	}
+
+	@Then("Enter the Inactive user username and password")
+	public void enter_the_inactive_user_username_and_password() throws Exception {
+		obj.enter_the_inactive_user_username_and_password();
+	}
+	@Then("Login should fail and display an error message as Your login attempt was not successful. Please try again.")
+	public void login_should_fail_and_display_an_error_message_as_your_login_attempt_was_not_successful_please_try_again() {
+		obj.login_should_fail_and_display_an_error_message_as_your_login_attempt_was_not_successful_please_try_again();
+	}
+	
+	@Then("Login should fail and display an error message as Invalid Username")
+	public void login_should_fail_and_display_an_error_message_as_invalid_username() {
+		obj.login_should_fail_and_display_an_error_message_as_invalid_username();
+	}
+	
+	@Then("Login should fail and display an error message as You need to enter a user name and you need to enter a password")
+	public void login_should_fail_and_display_an_error_message_as_you_need_to_enter_a_user_name_and_you_need_to_enter_a_password() {
+		obj.login_should_fail_and_display_an_error_message_as_you_need_to_enter_a_user_name_and_you_need_to_enter_a_password();
+	}
+
+	@Then("Login should successful and navigate to  My page")
+	public void login_should_successful_and_navigate_to_my_page() {
+		obj.navigate_to_homepage();
+		Assert.assertEquals(obj.actualhomepageurl, obj.expectedhomepageUrl);
+	}	
+
+	@Then("Login should fail and display an error message as You need to enter a password")
+	public void login_should_fail_and_display_an_error_message_as_you_need_to_enter_a_password() {
+		obj.login_should_fail_and_display_an_error_message_as_you_need_to_enter_a_password();
+	}
+	
+	@Then("Login should fail and display an error message as You need to enter a user name")
+	public void login_should_fail_and_display_an_error_message_as_you_need_to_enter_a_user_name() {
+		obj.login_should_fail_and_display_an_error_message_as_you_need_to_enter_a_user_name();
+	}
+	
+	@Then("It should navigate to the ValidationMaster My page")
+	public void it_should_navigate_to_the_validation_master_my_page() {
+		obj.it_should_navigate_to_the_validationmaster_home_page();
+	}
+	
+	@Then("It should display Contact support button")
+	public void it_should_display_contact_support_button() {
+		obj.it_should_display_contact_support_button();
+	}
+	
+	@When("Click on the Login with azure button")
+	public void click_on_the_login_with_azure_button() {
+		obj.click_on_the_login_with_azure_button();
+	}
+
+	@When("Click on the Login with Google button")
+	public void click_on_the_login_with_google_button() {
+		obj.click_on_the_login_with_google_button();
+	}
+	
+	@When("Click on the Login with Github button")
+	public void click_on_the_login_with_github_button() {
+		obj.click_on_the_login_with_github_button();
+	}
+	
+	@When("Click on the Login with Gitlab button")
+	public void click_on_the_login_with_gitlab_button() {
+		obj.click_on_the_login_with_gitlab_button();
+	}
+
+	@When("Click on the Login with Active Directory FS button")
+	public void click_on_the_login_with_active_directory_fs_button() {
+		obj.click_on_the_login_with_active_directory_fs_button();
+	}
+
+
+	@When("Click on the Login with Okta button")
+	public void click_on_the_login_with_okta_button() {
+		obj.click_on_the_login_with_okta_button();
+	}
+	
+	@When("Click on Hide icon")
+	public void click_on_hide_icon() {
+		obj.click_on_hide_icon();
+	}
+	
+	@Then("It should Hide the password")
+	public void it_should_hide_the_password() {
+		obj.it_should_hide_the_password();
+	}
+
+	@When("Click on Unhide icon")
+	public void click_on_unhide_icon() {
+		obj.click_on_unhide_icon();
+	}
+	
+	@Then("The password should be visible")
+	public void the_password_should_be_visible() {
+		obj.the_password_should_be_visible();
+	}
+	
+	@When("Click on Contact support button")
+	public void click_on_contact_support_button() throws Exception {
+		obj.click_on_contact_support_button();
+	}
+	
+	@Then("It should open the Onshore Technology Group contact us page in the new tab")
+	public void it_should_open_the_onshore_technology_group_contact_us_page_in_the_new_tab() {
+		obj.it_should_open_the_onshore_technology_group_contact_us_page_in_the_new_tab();
+	}
+	
+	@Then("Login should successful and navigate to the Landing page")
+	public void login_should_successful_and_navigate_to_the_landing_page() {
+		obj.login_should_successful_and_navigate_to_the_landing_page();
+	}
+	
+	@Then("It should open the login with Github page")
+	public void it_should_open_the_login_with_github_page() {
+		obj.it_should_open_the_login_with_github_page();
+	}
+	
+	@Then("It should open the login with Gitlab page")
+	public void it_should_open_the_login_with_gitlab_page() {
+		obj.it_should_open_the_login_with_gitlab_page();
+	}
+	
+	@Then("It should open the login with Active Directory FS page")
+	public void it_should_open_the_login_with_active_directory_fs_page() {
+		obj.it_should_open_the_login_with_active_directory_fs_page();
+	}
+		
+	@When("Click on the Copyright link")
+	public void click_on_the_copyright_link() throws Exception {
+		obj.click_on_the_copyright_link();
+	}
+	
+	@Then("It should open the Onshore Technology group website in new tab")
+	public void it_should_open_the_onshore_technology_group_website_in_new_tab() {
+		obj.it_should_open_the_onshore_technology_group_website_in_new_tab();
+	}
+				
+	@Then("It should open the login with azure page")
+	public void it_should_open_the_login_with_azure_page() {
+		obj.it_should_open_the_login_with_azure_page();
+	}	
+		
+	@Then("It should open the login with Google page")
+	public void it_should_open_the_login_with_google_page() {
+		obj.it_should_open_the_login_with_google_page();
+	}	
+	
+	@Then("It should open the login with Okta page")
+	public void it_should_open_the_login_with_okta_page() {
+		obj.it_should_open_the_login_with_okta_page();
+	}	
+	
+	//Login with Gitlab
+	@Then("Enter the Gitlab Email and Password")
+	public void enter_the_gitlab_email_and_password() {
+		obj.enter_the_gitlab_email_and_password();
+	}
+	
+	@Then("Click on Gitlab SignIn button")
+	public void click_on_gitlab_sign_in_button() {
+		obj.click_on_gitlab_sign_in_button();
+	}
+	
+	@Then("Click on Link an Existing user to this account")
+	public void click_on_link_an_existing_user_to_this_account() {
+		obj.click_on_link_an_existing_user_to_this_account();
+	}
+	
+	//Login with Google
+	@Then("Enter the Registered Gmail id")
+	public void enter_the_registered_gmail_id() {
+		obj.enter_the_registered_gmail_id();
+	}
+	
+	@Then("Click on Next button")
+	public void click_on_next_button() {
+		obj.click_on_next_button();
+	}
+	
+	@Then("Enter the Gmail Password and Click on Next button")
+	public void enter_the_gmail_password_and_click_on_next_button() {
+		obj.enter_the_gmail_password_and_click_on_next_button();
+	}
+	
+	@When("Click on Cancel button in the Link an Existing user to this account page")
+	public void click_on_cancel_button_in_the_link_an_existing_user_to_this_account_page() {
+		obj.click_on_cancel_button_in_the_link_an_existing_user_to_this_account_page();
+	}
+		
+	@Then("Enter the Existing Username and password")
+	public void enter_the_existing_username_and_password() {
+		obj.enter_the_existing_username_and_password();
+	}
+
+
+	
+	}

@@ -1,0 +1,646 @@
+Feature: Login functionality
+ 
+ 
+#001_login_001
+#ValidationMaster login page redirection
+@TFS_1760 @release_7.0
+Scenario: Verify the validationmaster login page URL navigation
+Given User should launch the browser
+When Enter the login URL and click on enter
+Then It should navigate to the ValidationMaster login page
+ 
+ 
+#001_login_002
+#Enter data in username field
+@TFS_1761
+Scenario: Verify the functionality of username field by entering the data
+Given User should launch the browser
+When Enter the login URL and click on enter
+Then Navigate to the login page
+When Enter the data inside the username field
+Then Username field should accept the data and it should be visible
+ 
+ 
+#001_login_003
+#Clear data in username field
+@TFS_1762
+Scenario: Verify the functionality of username field by clearing the data
+Given User should launch the browser
+When Enter the login URL and click on enter
+Then Navigate to the login page
+When Enter the data inside the username field
+When Clear the data inside the username field
+Then It should clear the data inside the username field
+ 
+ 
+#001_login_004
+#Enter data in password field
+@TFS_1763
+Scenario: Verify the functionality of password field by entering the data
+Given User should launch the browser
+When Enter the login URL and click on enter
+Then Navigate to the login page
+When Enter the data inside the password field
+Then Password field should accept the data
+ 
+ 
+#001_login_005
+#Clear data in password field
+@TFS_1764
+Scenario: Verify the functionality of password field by clearing the data
+Given User should launch the browser
+When Enter the login URL and click on enter
+Then Navigate to the login page
+When Enter the data inside the password field
+Then Password field should accept the data
+When Clear the data inside the password field
+Then It should clear the data inside the password field
+ 
+ 
+#001_login_006
+#Login with valid credentials
+@TFS_1765 @smoke1 @release_7.0 @sprint35
+Scenario: Verify the login functionality with valid username and password
+Given User should launch the browser
+When Enter the login URL and click on enter
+Then Navigate to the login page
+And Enter the valid username
+And Enter the valid password
+When Click on login button
+Then Login should successful and navigate to the Landing page
+ 
+ 
+#001_login_007
+#Login with invalid username and valid password
+@TFS_1766 @smoke1 @sprint35
+Scenario: Verify the login functionality with invalid username and valid password
+Given User should launch the browser
+When Enter the login URL and click on enter
+Then Navigate to the login page
+And Enter the invalid username
+And Enter the valid password
+When Click on login button
+Then Login should fail and display an error message as Invalid Username
+ 
+ 
+#001_login_008
+#Login with valid Username and Invalid Password
+@TFS_1767
+Scenario: Verify the login functionality with valid Username and Invalid Password
+Given User should launch the browser
+When Enter the login URL and click on enter
+Then Navigate to the login page
+And Enter the valid username
+And Enter the invalid password
+When Click on login button
+Then Login should fail and display an error message as Your login attempt was not successful. Please try again.
+ 
+ 
+#001_login_009
+#Login with invalid Username and invalid Password
+@TFS_1768 @sanity @sprint35
+Scenario: Verify the login functionality with invalid Username and invalid Password
+Given User should launch the browser
+When Enter the login URL and click on enter
+Then Navigate to the login page
+And Enter the invalid username
+And Enter the invalid password
+When Click on login button
+Then Login should fail and display an error message as Invalid Username
+ 
+ 
+#001_login_010
+#Login with empty password
+@TFS_1769
+Scenario: Verify the login functionality with Username and empty Password
+Given User should launch the browser
+When Enter the login URL and click on enter
+Then Navigate to the login page
+And Enter the valid username
+When Click on login button
+Then Login should fail and display an error message as You need to enter a password
+ 
+ 
+#001_Login_011
+#Login without credentials
+@TFS_1770 @sanity
+Scenario: Verify the login functionality with empty username and password
+Given User should launch the browser
+When Enter the login URL and click on enter
+Then Navigate to the login page
+And Enter the valid password
+When Click on login button
+Then Login should fail and display an error message as You need to enter a user name
+ 
+ 
+#001_login_012
+#Login with empty username and password
+@TFS_1771 @sanity
+Scenario: Verify the login functionality without username and password
+Given User should launch the browser
+When Enter the login URL and click on enter
+Then Navigate to the login page
+When Click on login button
+Then Login should fail and display an error message as You need to enter a user name and you need to enter a password
+ 
+ 
+#001_login_013
+#Select keep me logged in check box
+@TFS_1775
+Scenario: Verify the functionality of selecting the keep me logged in check box
+Given User should launch the browser
+When Enter the login URL and click on enter
+Then Navigate to the login page
+When Click on keep me logged in check box
+Then Keep me logged in check box should get selected
+ 
+ 
+#001_login_014
+#Unselect keep me logged in check box
+@TFS_1772
+Scenario: Verify the functionality of unselecting the keep me logged in check box
+Given User should launch the browser
+When Enter the login URL and click on enter
+Then Navigate to the login page
+And Click on keep me logged in check box
+And Keep me logged in check box should get selected
+When Click on keep me logged in check box which is already selected
+Then Keep me logged in check box should get unselected
+ 
+ 
+#001_login_015
+#Login with keep me logged in check box
+@TFS_1773 @sanity
+Scenario: Verify the login functionality by selecting the keep me logged in check box
+Given User should launch the browser
+When Enter the login URL and click on enter
+Then Navigate to the login page
+And Enter the valid username
+And Enter the valid password
+And Click on keep me logged in check box
+When Click on login button
+Then Login should successful and navigate to the Landing page
+ 
+ 
+#001_login_016
+#Login page UI
+@TFS_1774
+Scenario: Verify the UI of login page
+Given User should launch the browser
+When Enter the login URL and click on enter
+And Navigate to the login  page and observe the UI
+Then It should display the ValidationMaster title with logo
+And It should display username field
+And It should display password field
+And It should display keep me logged in check box
+And It should display login button
+And It should display forgot your password link
+And It should display Contact support button
+ 
+ 
+#001_login_017
+#Checking the functionality of Copyright link
+@TFS_4669
+Scenario: Verify the functionality of Copyright link
+Given User should launch the browser
+When Enter the login URL and click on enter
+Then Navigate to the login page
+When Click on the Copyright link
+Then It should open the Onshore Technology group website in new tab
+ 
+ 
+#001_login_018
+#Multiple login within same browser
+@TFS_1777
+Scenario: Verify the functionality of opening the login URL in new tab of the same browser after performing the login
+Given User should launch the browser
+When Enter the login URL and click on enter
+Then Navigate to the login page
+And Perform login
+And Open the new tab
+When Again enter the login URL and click on enter
+Then Login should successful and navigate to the Landing page
+ 
+ 
+#001_login_19
+#Onshore technology hyperlink test
+@TFS_1778 @sanity
+Scenario: Verify the functionality of OnShore technology group link
+Given User should launch the browser
+When Enter the login URL and click on enter
+Then Navigate to the login page
+When Click on onshore technology group link
+Then It should navigate to the onshore technology group website
+ 
+ 
+#001_login_020
+#Checking the login functionality with inactive user
+@TFS_1779
+Scenario: Verify the login functionality with Inactive user
+Given User should launch the browser
+When Enter the login URL and click on enter
+Then Navigate to the login page
+And Enter the Inactive user username and password
+When Click on login button
+Then Login should fail and display an error message as Your login attempt was not successful. Please try again.
+ 
+ 
+#001_login_021
+#Checking the functionality of Contact support button
+@TFS_4660 @smoke1
+Scenario: Verify the functionality of Contact support button
+Given User should launch the browser
+When Enter the login URL and click on enter
+Then Navigate to the login page
+When Click on Contact support button
+Then It should open the Onshore Technology Group contact us page in the new tab
+ 
+ 
+#001_login_022
+#Checking the functionality of Hide icon
+@TFS_4661 @sanity
+Scenario: Verify the functionality of Hide icon
+Given User should launch the browser
+When Enter the login URL and click on enter
+Then Navigate to the login page
+When Click on Hide icon
+Then It should Hide the password
+ 
+ 
+#001_login_023
+#Checking the functionality of Unhide icon
+@TFS_4662 @sanity
+Scenario: Verify the functionality of Unhide icon
+Given User should launch the browser
+When Enter the login URL and click on enter
+Then Navigate to the login page
+When Click on Unhide icon
+Then The password should be visible
+ 
+ 
+#001_login_024
+#Checking the Login functionality with Two-step authentication
+ 
+Scenario: Verify the Login functionality with Two-step authentication
+Given User should launch the browser
+When Enter the login URL and click on enter
+Then Navigate to the login page
+And Enter the Login details of the Two-step authentication enabled user
+When Click on login button
+Then It should display the Please Enter One-Time Password screen
+And Enter the Valid OTP from the Authenticator App and click on Login button
+Then Login should successful and navigate to the Landing page
+ 
+#001_login_025
+#Checking the Login functionality with Two-step authentication by passing the Invalid OTP
+ 
+Scenario: Verify the Login functionality with Two-step authentication by passing the Invalid OTP
+Given User should launch the browser
+When Enter the login URL and click on enter
+Then Navigate to the login page
+And Enter the Login details of the Two-step authentication enabled user
+When Click on login button
+Then It should display the Please Enter One-Time Password screen
+And Enter the Invalid OTP from the Authenticator App and click on Login button
+Then It should display and error message as Please enter Valid OTP
+ 
+ 
+#001_login_026
+#Checking the Login functionality with Two-step authentication with out passing any OTP
+ 
+Scenario: Verify the Login functionality with Two-step authentication with out passing any OTP
+Given User should launch the browser
+When Enter the login URL and click on enter
+Then Navigate to the login page
+And Enter the Login details of the Two-step authentication enabled user
+When Click on login button
+Then It should display the Please Enter One-Time Password screen
+Then It should display and error message as Please enter Valid OTP
+ 
+ 
+#ICU Medical specific scenarios
+ 
+#001_login_027
+#Checking the Login Page Loads Successfully	
+																							
+Scenario: Verify Login Page Loads Successfully																									
+Given User should launch the browser																									
+When Enter the login URL and click on enter																									
+Then Navigate to the login page																									
+And Login with SSO button should be displayed																									
+And Login with Local Account option should be displayed																									
+																									
+ 
+#001_login_028
+#Checking the Login with SSO button functionality
+																								
+Scenario: Verify Login with SSO button functionality																									
+Given User should launch the browser																									
+When Enter the login URL and click on enter																									
+Then Navigate to the login page																									
+When Click on Login with SSO button																									
+Then User should be redirected to SSO authentication page																									
+		
+ 
+#001_login_029
+#Checking the navigation to local login form	
+																									
+Scenario: Verify navigation to local login form																									
+Given User should launch the browser																									
+When Enter the login URL and click on enter																									
+Then Navigate to the login page																									
+When Click on Login with Local Account																									
+Then Username and Password fields should be displayed																									
+And Login button should be enabled																									
+ 
+ 
+#001_login_030
+#Checking the successful login using valid credentials
+																									
+Scenario: Verify successful login using valid credentials																									
+Given User should launch the browser																									
+When Enter the login URL and click on enter																									
+Then Navigate to the login page																									
+When Click on Login with Local Account																									
+And Enter valid Username																									
+And Enter valid Password																									
+And Click on Login button																									
+Then Login should be successful																									
+And Navigate to the Landing page																									
+ 
+ 
+#001_login_031
+#Checking the login with invalid username or password
+																									
+Scenario: Verify login with invalid username or password																									
+Given User should launch the browser																									
+When Enter the login URL and click on enter																									
+Then Navigate to the login page																									
+When Click on Login with Local Account																									
+And Enter invalid Username																									
+And Enter invalid Password																									
+And Click on Login button																									
+Then Error message should be displayed																									
+And User should remain on Login page																									
+ 
+ 
+#001_login_032
+#Checking the login with empty username and password	
+																									
+Scenario: Verify login with empty username and password																									
+Given User should launch the browser																									
+When Enter the login URL and click on enter																									
+Then Navigate to the login page																									
+When Click on Login with Local Account																									
+And Click on Login button																									
+Then Validation message should be displayed for Username and Password																									
+ 
+ 
+#001_login_033
+#Checking the password visibility toggle functionality	
+																									
+Scenario: Verify password visibility toggle functionality																									
+Given User should launch the browser																									
+When Enter the login URL and click on enter																									
+Then Navigate to the login page																									
+When Click on Login with Local Account																									
+And Enter password in Password field																									
+And Click on eye icon																									
+Then Password should be visible																									
+When Click on eye icon again																									
+Then Password should be hidden																									
+ 
+ 
+#001_login_034
+#Checking the Keep me logged in checkbox functionality
+																									
+Scenario: Verify Keep me logged in checkbox functionality																									
+Given User should launch the browser																									
+When Enter the login URL and click on enter																									
+Then Navigate to the login page																									
+When Click on Login with Local Account																									
+And Enter valid Username																									
+And Enter valid Password																									
+And Select Keep me logged in checkbox																									
+And Click on Login button																									
+Then Login should be successful																									
+When Close and reopen the browser																									
+And Enter the login URL																									
+Then User should remain logged in																									
+ 
+ 
+#001_login_035
+#Checking the forgot password navigation	
+																									
+Scenario: Verify forgot password navigation																									
+Given User should launch the browser																									
+When Enter the login URL and click on enter																									
+Then Navigate to the login page																									
+When Click on Login with Local Account																									
+And Click on Forgot your password link																									
+Then User should be redirected to password reset page																									
+ 
+ 
+#001_login_036
+#Checking the navigation back to SSO login	
+																									
+Scenario: Verify navigation back to SSO login																									
+Given User should launch the browser																									
+When Enter the login URL and click on enter																									
+Then Navigate to the login page																									
+When Click on Login with Local Account																									
+And Click on Back to SSO Login																									
+Then User should be redirected to SSO login screen																									
+ 
+ 
+#001_login_037
+#Checking the login session persists across browser tabs	
+																									
+Scenario: Verify login session persists across browser tabs																									
+Given User should launch the browser																									
+When Enter the login URL and click on enter																									
+Then Navigate to the login page																									
+And Perform login																									
+And Open a new tab																									
+When Enter the login URL in new tab and click on enter																									
+Then User should be already logged in																									
+And Navigate to the Landing page																									
+																									
+# Azure AD Specific Scenarios
+ 
+#001_login_038
+#Checking the login fails when Azure AD user account is inactive		
+																									
+Scenario: Verify login fails when Azure AD user account is inactive																									
+Given User should launch the browser																									
+When Enter the login URL and click on enter																									
+Then Navigate to the login page																									
+When Click on Login with SSO button																									
+And Enter valid Azure AD credentials for an inactive user																									
+And Complete the authentication process																									
+Then Login should not be successful																									
+And Error message should be displayed indicating the user account is inactive																									
+And User should remain on the login page																									
+ 
+ 
+#001_login_039
+#Checking the login fails when Azure AD credentials are invalid
+																									
+Scenario: Verify login fails when Azure AD credentials are invalid																									
+Given User should launch the browser																									
+When Enter the login URL and click on enter																									
+Then Navigate to the login page																									
+When Click on Login with SSO button																									
+And Enter invalid Azure AD credentials																									
+And Complete the authentication process																									
+Then Login should not be successful																									
+And Error message should be displayed																									
+And User should remain on the login page																									
+ 
+ 
+#001_login_040
+#Checking the login is successful when Azure AD user account is active
+																									
+Scenario: Verify login is successful when Azure AD user account is active																									
+Given User should launch the browser																									
+When Enter the login URL and click on enter																									
+Then Navigate to the login page																									
+When Click on Login with SSO button																									
+And Enter valid Azure AD credentials for an active user																									
+And Complete the authentication process																									
+Then Login should be successful																									
+And User should be navigated to the Landing page																									
+														
+#Login with different SSO providers scenarios
+ 
+#001_login_024
+#Checking the functionality of login with Azure AD button
+#
+#Scenario: Verify the functionality of login with azure button
+#Given User should launch the browser
+#When Enter the login URL and click on enter
+#Then Navigate to the login page
+#When Click on the Login with azure button
+#Then It should open the login with azure page
+#
+#
+#001_login_025
+#Checking the functionality of login with Okta button
+#
+#Scenario: Verify the functionality of login with Okta button
+#Given User should launch the browser
+#When Enter the login URL and click on enter
+#Then Navigate to the login page
+#When Click on the Login with Okta button
+#Then It should open the login with Okta page
+#
+#
+#001_login_026
+#Checking the functionality of login with Active Directory FS button
+#
+#Scenario: Verify the functionality of login with Active Directory FS button
+#Given User should launch the browser
+#When Enter the login URL and click on enter
+#Then Navigate to the login page
+#When Click on the Login with Active Directory FS button
+#Then It should open the login with Active Directory FS page
+#
+#
+#001_login_027
+#Checking the functionality of login with Gitlab button
+#
+#Scenario: Verify the functionality of login with Gitlab button
+#Given User should launch the browser
+#When Enter the login URL and click on enter
+#Then Navigate to the login page
+#When Click on the Login with Gitlab button
+#Then It should open the login with Gitlab page
+#
+#
+#001_login_028
+#Checking the functionality of login with Github button
+#
+#Scenario: Verify the functionality of login with Github button
+#Given User should launch the browser
+#When Enter the login URL and click on enter
+#Then Navigate to the login page
+#When Click on the Login with Github button
+#Then It should open the login with Github page
+ 
+ 
+#001_login_029
+#Checking the functionality of login with Google button
+#
+#Scenario: Verify the functionality of login with Google button
+#Given User should launch the browser
+#When Enter the login URL and click on enter
+#Then Navigate to the login page
+#When Click on the Login with Google button
+#Then It should open the login with Google page
+ 
+ 
+ 
+ 
+ 
+#001_login_031
+#Checking the login functionality of with google account
+#
+#Scenario: Verify the login functionality of with google account
+#Given User should launch the browser
+#When Enter the login URL and click on enter
+#Then Navigate to the login page
+#When Click on the Login with Google button
+#Then It should open the login with Google page
+#And Enter the Registered Gmail id
+#And Click on Next button
+#And Enter the Gmail Password and Click on Next button
+#And Click on Link an Existing user to this account
+#And Enter the Existing Username and password
+#When Click on login button
+#Then Login should successful and navigate to the Landing page
+#
+#
+#001_login_032
+#Checking the functionality of Cancel button in the Link an Existing user to this account page
+#
+#Scenario: Verify the functionality of Cancel button in the Link an Existing user to this account page
+#Given User should launch the browser
+#When Enter the login URL and click on enter
+#Then Navigate to the login page
+#When Click on the Login with Google button
+#Then It should open the login with Google page
+#And Enter the Registered Gmail id
+#And Click on Next button
+#And Enter the Gmail Password and Click on Next button
+#And Click on Next button
+#When Click on Cancel button in the Link an Existing user to this account page
+#Then It should navigate back to the login page
+#
+#
+#001_login_033
+#Checking the login functionality of with Gitlab account
+#
+#Scenario: Verify the login functionality of with Gitlab account
+#Given User should launch the browser
+#When Enter the login URL and click on enter
+#Then Navigate to the login page
+#When Click on the Login with Gitlab button
+#Then It should open the login with Gitlab page
+#And Enter the Gitlab Email and Password
+#And Click on Gitlab SignIn button
+#And Click on Link an Existing user to this account
+#And Enter the Existing Username and password
+#When Click on login button
+#Then Login should successful and navigate to the Landing page
+ 
+#001_login_017
+#Multiple login with different session
+#@UIRrevampFail
+#Scenario: Verify the login functionality of the User who has already performed login in one session
+#Given User should launch the browser
+#When Enter the login URL and click on enter
+#Then Navigate to the login page
+#And Perform login in one session
+#And Open new session with login url
+#And Perform login in another browser
+#Then It should not login and display an error message as you are already logged in an another session
