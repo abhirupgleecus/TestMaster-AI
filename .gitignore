@@ -53,11 +53,17 @@ logs/
 *.db
 
 # Playwright
-playwright-workspace/
+playwright-workspace/node_modules/
+playwright-workspace/test-results/
+playwright-workspace/playwright-report/
+playwright-workspace/reports/
+playwright-workspace/tests/
+playwright-workspace/.env
+playwright-workspace/credentials.txt
+!playwright-workspace/.env.example
+!playwright-workspace/credentials.txt.example
+
 tests/generated/
-playwright-report/
-test-results/
-*.spec.js.bak
 
 # Node / Frontend
 node_modules/
